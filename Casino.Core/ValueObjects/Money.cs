@@ -9,8 +9,9 @@ public class Money
     {
         if (amount < 0) 
         {
-            throw new ArgumentException(ExceptionMessages.MoneyAmountCannotBeNegative)
+            throw new ArgumentException(ExceptionMessages.MoneyAmountCannotBeNegative);
         }
+        Amount = amount;
     }
 
     public static implicit operator decimal(Money money) => money.Amount;

@@ -5,7 +5,7 @@ using Casino.Core.Configurations;
 
 namespace Casino.Wallet;
 
-public static class Program
+class Program
 {
     static async Task Main(string[] args)
     {

@@ -3,7 +3,7 @@ namespace Casino.Core.Enums;
 public enum TransactionType 
 {
     Deposit,
-    Withdrawalal,
+    Withdrawal,
     Bet,
     Win
 }

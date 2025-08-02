@@ -1,3 +1,5 @@
+using Casino.Core.Constants;
+
 namespace Casino.Core.ValueObjects;
 
 public class BetAmount

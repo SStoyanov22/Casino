@@ -1,4 +1,7 @@
 using Casino.Core.Enums;
+using Casino.Core.Constants;
+using Casino.Core.ValueObjects;
+using Casino.Core.ExceptionMessages;
 
 namespace Casino.Core.Entities;
 
@@ -18,7 +21,7 @@ public class Wallet
 
         if (amount > Balance)
         {
-            throw new InvalidOperationException(ExceptionMessages.);
+            throw new InvalidOperationException(ExceptionMessages.InsufficientFunds);
         }
 
         lock(_lock) 
@@ -32,13 +35,13 @@ public class Wallet
     {
         if (amount <= 0) 
         {
-            throw new ArgumentException("Bet amount must be greater than 0")
+            throw new ArgumentException(ExceptionMessages.AmountMustBePositive);
         }
 
         lock(_lock)
         {
             Balance += amount;
-            _transactions.Add(new Transaction(TransactionType.Win, amount, Balance))
+            _transactions.Add(new Transaction(TransactionType.Win, amount, Balance));
         }
     }
 
@@ -46,18 +49,18 @@ public class Wallet
     {
         if (amount <= 0) 
         {
-            throw new ArgumentException("Bet amount must be greater than 0")
+            throw new ArgumentException(ExceptionMessages.AmountMustBePositive)
         }
 
         if (amount > Balance)
         {
-            throw new InvalidOperationException("Insufficient balance");
+            throw new InvalidOperationException(ExceptionMessages.InsufficientFunds);
         }
         
         lock(_lock)
         {
             Balance -= amount;
-            _transactions.Add(new Transaction(TransactionType.Withdrawal), amount, Balance)
+            _transactions.Add(new Transaction(TransactionType.Withdrawal, amount, Balance));
         }
     }
 
@@ -65,13 +68,13 @@ public class Wallet
     {
         if (amount <= 0) 
         {
-            throw new ArgumentException("Bet amount must be greater than 0")
+            throw new ArgumentException(ExceptionMessages.AmountMustBePositive);
         }
 
         lock(_lock)
         {
             Balance += amount;
-            _transactions.Add(new Transaction(TransactionType.Deposit, amount, Balance))
+            _transactions.Add(new Transaction(TransactionType.Deposit, amount, Balance));
         }
     }
 }
