@@ -1,8 +1,6 @@
 using Casino.Core.Enums;
 using Casino.Core.Constants;
-using Casino.Core.ValueObjects;
-using Casino.Core.ExceptionMessages;
-
+                
 namespace Casino.Core.Entities;
 
 public class Wallet
@@ -49,7 +47,7 @@ public class Wallet
     {
         if (amount <= 0) 
         {
-            throw new ArgumentException(ExceptionMessages.AmountMustBePositive)
+            throw new ArgumentException(ExceptionMessages.AmountMustBePositive);
         }
 
         if (amount > Balance)

@@ -121,7 +121,7 @@ public class GameConfiguration
     private bool ValidateProbabilities()
     {
         decimal totalProbability = LossProbability + SmallWinProbability + BigWinProbability;
-        return Math.Abs(totalProbability - 1.0m) = 0m; 
+        return Math.Abs(totalProbability - 1.0m) == 0m; 
     } 
 
 
