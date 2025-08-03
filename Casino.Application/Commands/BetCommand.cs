@@ -5,6 +5,7 @@ using Casino.Core.Enums;
 using Casino.Application.Services;
 using Microsoft.Extensions.Logging;
 using Casino.Core.ValueObjects;
+using Casino.Core.Results;
 
 namespace Casino.Application.Commands;
 

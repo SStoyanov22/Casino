@@ -1,6 +1,6 @@
 using Casino.Core.Results;
 
-namespace Casino.Core.Commands;
+namespace Casino.Core.Results;
 
 public class CommandResult : Result
 {

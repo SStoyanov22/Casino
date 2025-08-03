@@ -63,7 +63,7 @@ public class GameEngine : IGameEngine
         // Convert to decimal between 0 and 1
         decimal randomDecimal = (decimal)randomInt / 1000000m;
         
-        // Scale to your range
+        // Scale to range
         return min + (randomDecimal * (max - min));
     }
 }

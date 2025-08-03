@@ -1,5 +1,6 @@
 using Casino.Core.Commands;
 using Casino.Core.Entities;
+using Casino.Core.Results;
 using Casino.Core.ValueObjects;
 using Microsoft.Extensions.Logging;
 

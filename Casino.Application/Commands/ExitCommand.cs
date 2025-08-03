@@ -1,4 +1,5 @@
 using Casino.Core.Commands;
+using Casino.Core.Results;
 using Microsoft.Extensions.Logging;
 
 namespace Casino.Application.Commands;
