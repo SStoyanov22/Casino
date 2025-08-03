@@ -34,6 +34,8 @@ class Program
             configuration.GetSection("GameConfiguration"));
 
         // Register services
+        services.AddScoped<IGameEngine, GameEngine>();
+        services.AddScoped<ICommandHandler, CommandHandler>();
 
         // Build service provider
         var serviceProvider = services.BuildServiceProvider();

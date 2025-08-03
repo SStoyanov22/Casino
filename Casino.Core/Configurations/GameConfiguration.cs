@@ -78,43 +78,6 @@ public class GameConfiguration
     }
 
     /// <summary>
-    /// Calculates the win amount based on the bet amount and the game result type
-    /// </summary>
-    /// <param name="betAmount">The bet amount</param>
-    /// <param name="resultType">The game result type</param>
-    /// <returns>The win amount</returns>
-    public decimal CalculateWinAmount(decimal betAmount, GameResultType resultType)
-    {
-        return resultType switch
-        {
-            GameResultType.Loss => 0m,
-            GameResultType.SmallWin => betAmount *  GetRandomMultiplier(1.0m, SmallWinMaxMultiplier),
-            GameResultType.BigWin => betAmount * GetRandomMultiplier(BigWinMinMultiplier, BigWinMaxMultiplier),
-            _ => throw new ArgumentException(ExceptionMessages.InvalidGameResultType)
-        };
-
-    }
-
-    
-    /// <summary>
-    /// Generates a random multiplier between a minimum and maximum value
-    /// </summary>
-    /// <param name="min">The minimum value</param>
-    /// <param name="max">The maximum value</param>
-    /// <returns>A random multiplier between the minimum and maximum value</returns>
-    private static decimal GetRandomMultiplier(decimal min, decimal max)
-    {
-        // Generate random integer between 0 and 1000000 for precision
-        int randomInt = RandomNumberGenerator.GetInt32(0, 1000001);
-        
-        // Convert to decimal between 0 and 1
-        decimal randomDecimal = (decimal)randomInt / 1000000m;
-        
-        // Scale to your range
-        return min + (randomDecimal * (max - min));
-    }
-
-    /// <summary>
     /// Validates that all probabilities sum to 1.0
     /// </summary>
     /// <returns>True if probabilities sum to 1.0, false otherwise</returns>
