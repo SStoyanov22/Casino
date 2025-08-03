@@ -13,11 +13,11 @@ public class BetCommand : BaseCommand<CommandResult>
 {
     private readonly Player _player;
     private readonly decimal _betAmount;
-    private readonly IGameEngine _gameEngine;
+    private readonly ISlotGameService _gameEngine;
     private readonly GameConfiguration _gameConfig;
 
     public BetCommand(ILogger logger, Player player, decimal betAmount, 
-                     IGameEngine gameEngine, GameConfiguration gameConfig) 
+                     ISlotGameService gameEngine, GameConfiguration gameConfig) 
         : base(logger)
     {
         _player = player;

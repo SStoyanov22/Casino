@@ -5,7 +5,7 @@ using Casino.Core.Enums;
 
 namespace Casino.Application.Services;
 
-public class GameEngine : IGameEngine
+public class SlotGameService : ISlotGameService
 {
     /// <summary>
     /// Calculates the win amount based on the bet amount and the game result type

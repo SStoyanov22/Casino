@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using Casino.Core.Configurations;
 using Casino.Application.Services;
 using Casino.Core.Entities;
-using System.IO.Compression;
 
 namespace Casino.Wallet;
 
@@ -37,7 +36,7 @@ class Program
             configuration.GetSection("GameConfiguration"));
 
         // Register services
-        services.AddScoped<IGameEngine, GameEngine>();
+        services.AddScoped<ISlotGameService, SlotGameService>();
         services.AddScoped<ICommandHandler, CommandHandler>();
         services.AddScoped<IValidationService, ValidationService>();
 

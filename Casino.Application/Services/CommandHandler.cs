@@ -1,19 +1,19 @@
-using Casino.Core.Entities;
-using Casino.Core.Configurations;
 using Microsoft.Extensions.Options;
-using Casino.Application.Commands;
 using Microsoft.Extensions.Logging;
 using Casino.Core.Results;
+using Casino.Core.Entities;
+using Casino.Core.Configurations;
+using Casino.Application.Commands;
 
 namespace Casino.Application.Services;
 
 public class CommandHandler : ICommandHandler
 {
     private readonly ILogger<CommandHandler> _logger;
-    private readonly IGameEngine _gameEngine;
+    private readonly ISlotGameService _gameEngine;
     private readonly GameConfiguration _gameConfig;
 
-    public CommandHandler(ILogger<CommandHandler> logger, IGameEngine gameEngine, 
+    public CommandHandler(ILogger<CommandHandler> logger, ISlotGameService gameEngine, 
                         IOptions<GameConfiguration> gameConfig)
     {
         _logger = logger;
