@@ -1,5 +1,6 @@
 using Casino.Core.Commands;
 using Casino.Core.Entities;
+using Casino.Core.ValueObjects;
 using Microsoft.Extensions.Logging;
 
 namespace Casino.Application.Commands;
@@ -20,10 +21,11 @@ public class DepositCommand : BaseCommand<CommandResult>
     {
         try
         {
+            var money = new Money(_amount);
             Logger.LogInformation("Executing DepositCommand for player {PlayerId} with amount {Amount}", 
                 _player.Id, _amount);
 
-            _player.Wallet.Deposit(_amount);
+            _player.Wallet.Deposit(money);
             
             Logger.LogInformation("Deposit successful for player {PlayerId}. New balance: {NewBalance}", 
                 _player.Id, _player.Wallet.Balance);

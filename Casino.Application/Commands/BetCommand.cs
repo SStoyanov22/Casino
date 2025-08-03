@@ -4,6 +4,7 @@ using Casino.Core.Configurations;
 using Casino.Core.Enums;
 using Casino.Application.Services;
 using Microsoft.Extensions.Logging;
+using Casino.Core.ValueObjects;
 
 namespace Casino.Application.Commands;
 
@@ -31,23 +32,26 @@ public class BetCommand : BaseCommand<CommandResult>
             Logger.LogInformation("Executing BetCommand for player {PlayerId} with amount {Amount}", 
                 _player.Id, _betAmount);
 
+            var betAmount = new BetAmount(_betAmount);
+
             // Validate bet amount
-            if (!_gameConfig.IsValidBetAmount(_betAmount))
+            if (!_gameConfig.IsValidBetAmount(betAmount))
             {
                 return Task.FromResult(CommandResult.Error($"Bet amount must be between ${_gameConfig.MinimumBet} and ${_gameConfig.MaximumBet}"));
             }
 
             // Place bet
-            _player.Wallet.PlaceBet(_betAmount);
+            _player.Wallet.PlaceBet(betAmount);
 
             // Determine game result using game engine
             var resultType = _gameEngine.DetermineGameResult(_gameConfig);
-            var winAmount = _gameEngine.CalculateWinAmount(_betAmount, resultType, _gameConfig);
+            var winAmount = _gameEngine.CalculateWinAmount(betAmount, resultType, _gameConfig);
 
             // Accept winnings if any
             if (winAmount > 0)
             {
-                _player.Wallet.AcceptWin(winAmount);
+                var winnings = new Money(winAmount);
+                _player.Wallet.AcceptWin(winnings);
             }
 
             var resultMessage = resultType switch

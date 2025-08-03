@@ -9,46 +9,27 @@ namespace Casino.Core.Configurations;
 /// </summary>
 public class GameConfiguration
 {
-    /// <summary>
-    /// Minimum bet amount allowed
-    /// </summary>
+    // Bet limits
     public decimal MinimumBet { get; set; } = 1.0m;
-
-    /// <summary>
-    /// Maximum bet amount allowed
-    /// </summary>
     public decimal MaximumBet { get; set; } = 10.0m;
 
-    /// <summary>
-    /// Probability of losing
-    /// </summary>
+    // Game probabilities
     public decimal LossProbability { get; set; } = 0.5m;
-
-    /// <summary>
-    /// Probability of winning up to x2 the bet amount
-    /// </summary>
     public decimal SmallWinProbability { get; set; } = 0.4m;
-
-    /// <summary>
-    /// Probability of winning between x2 and x10 the bet amount
-    /// </summary>
     public decimal BigWinProbability { get; set; } = 0.1m;
 
-    /// <summary>
-    /// Maximum multiplier for small wins (up to x2)
-    /// </summary>
+    // Multipliers
     public decimal SmallWinMaxMultiplier { get; set; } = 2.0m;
-
-    /// <summary>
-    /// Maximum multiplier for big wins (x2 to x10)
-    /// </summary>
     public decimal BigWinMaxMultiplier { get; set; } = 10.0m;
-
-    /// <summary>
-    /// Minimum multiplier for big wins (x2 to x10)
-    /// </summary>
     public decimal BigWinMinMultiplier { get; set; } = 2.0m;
 
+    // Static instance
+    public static GameConfiguration Instance { get; private set; } = new();
+
+    public static void Initialize(GameConfiguration config)
+    {
+        Instance = config;
+    }
     /// <summary>
     /// Validates that the game configuration is valid by checking bet ranges, probability values, 
     /// multiplier settings, and ensuring probabilities sum to 1.0
@@ -67,20 +48,12 @@ public class GameConfiguration
                ValidateProbabilities();
     }
 
-    /// <summary>
-    /// Validates that the bet amount is within the allowed range
-    /// </summary>
-    /// <param name="amount">The bet amount to validate</param>
-    /// <returns>True if the bet amount is valid, false otherwise</returns>
+    /// Validations
     public bool IsValidBetAmount(decimal amount)
     {   
         return amount >= MinimumBet && amount <= MaximumBet;
     }
 
-    /// <summary>
-    /// Validates that all probabilities sum to 1.0
-    /// </summary>
-    /// <returns>True if probabilities sum to 1.0, false otherwise</returns>
     private bool ValidateProbabilities()
     {
         decimal totalProbability = LossProbability + SmallWinProbability + BigWinProbability;

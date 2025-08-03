@@ -1,17 +1,18 @@
+using Casino.Core.Configurations;
 using Casino.Core.Constants;
 
 namespace Casino.Core.ValueObjects;
 
 public class BetAmount
 {
-    public decimal Amount {get;}
+    public decimal Amount { get; }
+
     public BetAmount(decimal amount)
     {
-        if (amount < 1 || amount > 10) 
+        if (amount < GameConfiguration.Instance.MinimumBet || amount > GameConfiguration.Instance.MaximumBet)
         {
-            throw new ArgumentException(ExceptionMessages.BetAmountMustBeBetweenOneAndTen);
+            throw new ArgumentException($"Bet must be between ${GameConfiguration.Instance.MinimumBet:F2} and ${GameConfiguration.Instance.MaximumBet:F2}");
         }
-
         Amount = amount;
     }
 

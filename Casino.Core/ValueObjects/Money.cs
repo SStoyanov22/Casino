@@ -5,6 +5,7 @@ namespace Casino.Core.ValueObjects;
 public class Money 
 {
     public decimal Amount { get; }
+    
     public Money (decimal amount)
     {
         if (amount < 0) 

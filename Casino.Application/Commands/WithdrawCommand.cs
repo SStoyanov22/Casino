@@ -1,5 +1,6 @@
 using Casino.Core.Commands;
 using Casino.Core.Entities;
+using Casino.Core.ValueObjects;
 using Microsoft.Extensions.Logging;
 
 namespace Casino.Application.Commands;
@@ -23,7 +24,9 @@ public class WithdrawCommand : BaseCommand<CommandResult>
             Logger.LogInformation("Executing WithdrawCommand for player {PlayerId} with amount {Amount}", 
                 _player.Id, _amount);
 
-            _player.Wallet.Withdraw(_amount);
+            var money = new Money(_amount);
+            
+            _player.Wallet.Withdraw(money);
 
             Logger.LogInformation("Withdrawal successful for player {PlayerId}. New balance: {NewBalance}", 
                 _player.Id, _player.Wallet.Balance);

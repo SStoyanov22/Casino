@@ -3,7 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Casino.Core.Configurations;
 using Casino.Application.Services;
-
+using Casino.Core.Entities;
+using System.IO.Compression;
 
 namespace Casino.Wallet;
 
@@ -38,6 +39,7 @@ class Program
         // Register services
         services.AddScoped<IGameEngine, GameEngine>();
         services.AddScoped<ICommandHandler, CommandHandler>();
+        services.AddScoped<IValidationService, ValidationService>();
 
         // Build service provider
         var serviceProvider = services.BuildServiceProvider();
@@ -45,12 +47,62 @@ class Program
         // Get logger
         var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
         
-        logger.LogInformation("Betty Casino Application Starting...");
+        logger.LogInformation("Casino Application Starting...");
         
-        // TODO: Add main application logic here
-        Console.WriteLine("Welcome to Betty Casino!");
-        Console.WriteLine("Application is ready for implementation.");
+        // Main application logic here
+
+        var player = new Player();
+        var commandHandler = serviceProvider.GetRequiredService<ICommandHandler>();
+
+        await RunApplicationAsync(player, commandHandler, logger);
+
+        logger.LogInformation("Casino Application Shutdown");
+
         
-        logger.LogInformation("Casino Application Started Successfully");
+    }
+
+    private static async Task RunApplicationAsync(Player player, ICommandHandler commandHandler, ILogger<Program> logger)
+    {
+        Console.WriteLine("Welcome to our Casino!");
+        Console.WriteLine("Available commands: deposit <amount>, withdraw <amount>, bet <amount>, exit");
+        Console.WriteLine();
+
+        while (true)
+        {
+            try
+            {
+                var input = Console.ReadLine()?.Trim();
+                if (string.IsNullOrEmpty(input))
+                    {
+                        Console.WriteLine("Please enter a valid command.");
+                        continue;
+                    }
+
+                var command = input.Split(' ');
+                if (command.Length == 0)
+                {
+                    Console.WriteLine("Please enter a valid command.");
+                    continue;
+                }
+
+                // Parse and execute command
+
+               // Display result
+
+                
+                // Check if user wants to exit
+                if (input.Equals("exit", StringComparison.OrdinalIgnoreCase))
+                {
+                    break;
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error in main application loop");
+                Console.WriteLine("An unexpected error occurred. Please try again.");
+                Console.WriteLine();
+            }
+        }
+
     }
 }
