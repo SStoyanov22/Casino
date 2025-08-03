@@ -14,7 +14,7 @@ public class BetCommand : BaseCommand<CommandResult>
     private readonly IGameEngine _gameEngine;
     private readonly GameConfiguration _gameConfig;
 
-    public BetCommand(ILogger<BetCommand> logger, Player player, decimal betAmount, 
+    public BetCommand(ILogger logger, Player player, decimal betAmount, 
                      IGameEngine gameEngine, GameConfiguration gameConfig) 
         : base(logger)
     {

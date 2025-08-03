@@ -3,6 +3,7 @@ using Casino.Core.Entities;
 using Casino.Core.Configurations;
 using Microsoft.Extensions.Options;
 using Casino.Application.Commands;
+using Microsoft.Extensions.Logging;
 
 namespace Casino.Application.Services;
 

@@ -5,7 +5,7 @@ namespace Casino.Application.Commands;
 
 public class ExitCommand : BaseCommand<CommandResult>
 {
-    public ExitCommand(ILogger<ExitCommand> logger) : base(logger)
+    public ExitCommand(ILogger logger) : base(logger)
     {
     }
 

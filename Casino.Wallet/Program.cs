@@ -2,6 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Casino.Core.Configurations;
+using Casino.Application.Services;
+
 
 namespace Casino.Wallet;
 

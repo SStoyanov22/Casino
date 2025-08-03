@@ -1,9 +1,8 @@
-namespace Casino.Core.Results
+namespace Casino.Core.Results;
+
+public interface IResult
 {
-    public interface IResult
-    {
-        bool IsSuccess { get; }
-        string Message { get; }
-        decimal? NewBalance { get; }
-    }
+    bool IsSuccess { get; }
+    string Message { get; }
+    decimal? NewBalance { get; }
 }

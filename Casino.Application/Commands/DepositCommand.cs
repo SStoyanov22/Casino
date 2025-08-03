@@ -9,7 +9,7 @@ public class DepositCommand : BaseCommand<CommandResult>
     private readonly Player _player;
     private readonly decimal _amount;
 
-    public DepositCommand(ILogger<DepositCommand> logger, Player player, decimal amount) 
+    public DepositCommand(ILogger logger, Player player, decimal amount) 
         : base(logger)
     {
         _player = player;

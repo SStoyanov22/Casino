@@ -9,7 +9,7 @@ public class WithdrawCommand : BaseCommand<CommandResult>
     private readonly Player _player;
     private readonly decimal _amount;
 
-    public WithdrawCommand(ILogger<WithdrawCommand> logger, Player player, decimal amount) 
+    public WithdrawCommand(ILogger logger, Player player, decimal amount) 
         : base(logger)
     {
         _player = player;
