@@ -22,4 +22,10 @@
     <ProjectReference Include="..\Casino.Infrastructure\Casino.Infrastructure.csproj" />
     <ProjectReference Include="..\Casino.Application\Casino.Application.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

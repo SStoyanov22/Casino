@@ -13,16 +13,16 @@ public class BetCommand : BaseCommand<CommandResult>
 {
     private readonly Player _player;
     private readonly decimal _betAmount;
-    private readonly ISlotGameService _gameEngine;
+    private readonly ISlotGameService _gameService;
     private readonly GameConfiguration _gameConfig;
 
     public BetCommand(ILogger logger, Player player, decimal betAmount, 
-                     ISlotGameService gameEngine, GameConfiguration gameConfig) 
+                     ISlotGameService gameService, GameConfiguration gameConfig) 
         : base(logger)
     {
         _player = player;
         _betAmount = betAmount;
-        _gameEngine = gameEngine;
+        _gameService = gameService;
         _gameConfig = gameConfig;
     }
 
@@ -45,8 +45,8 @@ public class BetCommand : BaseCommand<CommandResult>
             _player.Wallet.PlaceBet(betAmount);
 
             // Determine game result using game engine
-            var resultType = _gameEngine.DetermineGameResult(_gameConfig);
-            var winAmount = _gameEngine.CalculateWinAmount(betAmount, resultType, _gameConfig);
+            var resultType = _gameService.DetermineGameResult(_gameConfig);
+            var winAmount = _gameService.CalculateWinAmount(betAmount, resultType, _gameConfig);
 
             // Accept winnings if any
             if (winAmount > 0)
