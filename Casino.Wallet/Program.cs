@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Casino.Core.Configurations;
 using Casino.Application.Services;
 using Casino.Core.Entities;
+using Casino.Core.Results;
 
 namespace Casino.Wallet;
 
@@ -39,7 +40,8 @@ class Program
         services.AddScoped<ISlotGameService, SlotGameService>();
         services.AddScoped<ICommandHandler, CommandHandler>();
         services.AddScoped<IValidationService, ValidationService>();
-
+        services.AddScoped<IConsoleService, ConsoleService>();
+        
         // Build service provider
         var serviceProvider = services.BuildServiceProvider();
 
@@ -52,15 +54,16 @@ class Program
 
         var player = new Player();
         var commandHandler = serviceProvider.GetRequiredService<ICommandHandler>();
+        var consoleService = serviceProvider.GetRequiredService<IConsoleService>();
 
-        await RunApplicationAsync(player, commandHandler, logger);
+        await RunApplicationAsync(player, commandHandler, consoleService, logger);
 
         logger.LogInformation("Casino Application Shutdown");
 
         
     }
 
-    private static async Task RunApplicationAsync(Player player, ICommandHandler commandHandler, ILogger<Program> logger)
+    private static async Task RunApplicationAsync(Player player, ICommandHandler commandHandler, IConsoleService consoleService, ILogger<Program> logger)
     {
         Console.WriteLine("Welcome to our Casino!");
         Console.WriteLine("Available commands: deposit <amount>, withdraw <amount>, bet <amount>, exit");
@@ -70,30 +73,34 @@ class Program
         {
             try
             {
-                var input = Console.ReadLine()?.Trim();
+                var input = consoleService.GetUserInput("Please, submit action: ");
                 if (string.IsNullOrEmpty(input))
                     {
-                        Console.WriteLine("Please enter a valid command.");
+                        consoleService.DisplayMessage("Please enter a valid command.");
                         continue;
                     }
 
-                var command = input.Split(' ');
-                if (command.Length == 0)
+                // Parse input
+                var (command, amount) = consoleService.ParseInput(input);
+                
+                if (!consoleService.IsValidCommand(command))
                 {
-                    Console.WriteLine("Please enter a valid command.");
+                    consoleService.DisplayMessage($"Invalid command: {command}");
                     continue;
                 }
 
-                // Parse and execute command
-
-               // Display result
-
+                // Execute command
+                var result = await ExecuteCommandAsync(command, amount, player, commandHandler);
                 
+                // Display result
+                consoleService.DisplayMessage(result.Message);
+
                 // Check if user wants to exit
                 if (input.Equals("exit", StringComparison.OrdinalIgnoreCase))
                 {
                     break;
                 }
+                
             }
             catch (Exception ex)
             {
@@ -102,6 +109,18 @@ class Program
                 Console.WriteLine();
             }
         }
-
     }
+
+    private static async Task<CommandResult> ExecuteCommandAsync(string command, decimal amount, Player player, ICommandHandler commandHandler)
+    {
+        return command.ToLowerInvariant() switch
+        {
+            "deposit" => await commandHandler.HandleDepositAsync(player, amount),
+            "withdraw" => await commandHandler.HandleWithdrawAsync(player, amount),
+            "bet" => await commandHandler.HandleBetAsync(player, amount),
+            "exit" => await commandHandler.HandleExitAsync(),
+            _ =>  CommandResult.Error("Invalid command")
+        };
+    }
+
 }

@@ -21,7 +21,7 @@ public class CommandHandler : ICommandHandler
         _gameConfig = gameConfig.Value;
     }
 
-    public async Task<CommandResult> ExecuteDepositAsync(Player player, decimal amount)
+    public async Task<CommandResult> HandleDepositAsync(Player player, decimal amount)
     {
         _logger.LogInformation("CommandHandler: Executing deposit for player {PlayerId} with amount {Amount}", 
             player.Id, amount);
@@ -30,7 +30,7 @@ public class CommandHandler : ICommandHandler
         return await command.ExecuteAsync();
     }
 
-    public async Task<CommandResult> ExecuteWithdrawAsync(Player player, decimal amount)
+    public async Task<CommandResult> HandleWithdrawAsync(Player player, decimal amount)
     {
         _logger.LogInformation("CommandHandler: Executing withdrawal for player {PlayerId} with amount {Amount}", 
             player.Id, amount);
@@ -39,7 +39,7 @@ public class CommandHandler : ICommandHandler
         return await command.ExecuteAsync();
     }
 
-    public async Task<CommandResult> ExecuteBetAsync(Player player, decimal betAmount)
+    public async Task<CommandResult> HandleBetAsync(Player player, decimal betAmount)
     {
         _logger.LogInformation("CommandHandler: Executing bet for player {PlayerId} with amount {Amount}", 
             player.Id, betAmount);
@@ -48,7 +48,7 @@ public class CommandHandler : ICommandHandler
         return await command.ExecuteAsync();
     }
 
-    public async Task<CommandResult> ExecuteExitAsync()
+    public async Task<CommandResult> HandleExitAsync()
     {
         _logger.LogInformation("CommandHandler: Executing exit command");
 
