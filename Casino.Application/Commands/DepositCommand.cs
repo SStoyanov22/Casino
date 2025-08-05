@@ -1,51 +1,40 @@
-using Casino.Core.Results;
-using Casino.Core.Entities;
-using Casino.Core.ValueObjects;
-using Microsoft.Extensions.Logging;
 using Casino.Core.Commands;
+using Casino.Core.Entities;
+using Casino.Core.Results;
+using Casino.Application.Services;
+using Microsoft.Extensions.Logging;
+using Casino.Core.DTOs;
 
 namespace Casino.Application.Commands;
 
 public class DepositCommand : BaseCommand<CommandResult>
 {
-    private readonly Player _player;
-    private readonly decimal _amount;
+    private readonly IWalletService _walletService;
 
-    public DepositCommand(ILogger logger, Player player, decimal amount) 
-        : base(logger)
+    public DepositCommand(IWalletService walletService, ILogger<DepositCommand> logger)
+    : base(logger)
     {
-        _player = player;
-        _amount = amount;
+        _walletService = walletService;
     }
 
-    public override Task<CommandResult> ExecuteAsync()
+   public override Task<CommandResult> ExecuteAsync(CommandRequest request)
     {
-        try
-        {
-            var money = new Money(_amount);
-            Logger.LogInformation("Executing DepositCommand for player {PlayerId} with amount {Amount}", 
-                _player.Id, _amount);
+        _logger.LogInformation("Deposit Command executing for player {PlayerId} with amount {Amount}", 
+                request.Player.Id, request.Amount);
 
-            _player.Wallet.Deposit(money);
-            
-            Logger.LogInformation("Deposit successful for player {PlayerId}. New balance: {NewBalance}", 
-                _player.Id, _player.Wallet.Balance);
-            
-            return Task.FromResult(CommandResult.Success(
-                $"Your deposit of ${_amount:F2} was successful. Your current balance is: ${_player.Wallet.Balance:F2}",
-                _player.Wallet.Balance));
-        }
-        catch (ArgumentException ex)
+        var result =  _walletService.Deposit(request.Player, request.Amount);
+
+        if (result.IsSuccess)
         {
-            Logger.LogWarning(ex, "Deposit failed for player {PlayerId} with amount {Amount}", 
-                _player.Id, _amount);
-            return Task.FromResult(CommandResult.Error($"Deposit failed: {ex.Message}"));
+            _logger.LogInformation("Deposit Command completed successfully for player {PlayerId}. New balance: {NewBalance}", 
+                request.Player.Id, request.Player.Wallet.Balance);
         }
-        catch (Exception ex)
+        else
         {
-            Logger.LogError(ex, "An unexpected error occurred during deposit for player {PlayerId} with amount {Amount}", 
-                _player.Id, _amount);
-            return Task.FromResult(CommandResult.Error("An unexpected error occurred during deposit."));
+            _logger.LogWarning("Deposit Command failed for player {PlayerId}: {Error}", 
+                request.Player.Id, result.Message);
         }
+        
+        return Task.FromResult(result);
     }
 }

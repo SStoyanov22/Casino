@@ -25,7 +25,5 @@ public static class ExceptionMessages
     // Validation
     public const string InvalidConfiguration = "Game configuration is invalid";
     public const string InvalidBetRange = "Bet amount is outside allowed range";
-    
-    // 
 
 }

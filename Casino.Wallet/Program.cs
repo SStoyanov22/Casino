@@ -5,6 +5,7 @@ using Casino.Core.Configurations;
 using Casino.Application.Services;
 using Casino.Core.Entities;
 using Casino.Core.Results;
+using Casino.Application.Commands;
 
 namespace Casino.Wallet;
 
@@ -41,6 +42,13 @@ class Program
         services.AddScoped<ICommandHandler, CommandHandler>();
         services.AddScoped<IValidationService, ValidationService>();
         services.AddScoped<IConsoleService, ConsoleService>();
+
+        // Register commands
+        // Register commands
+        services.AddScoped<DepositCommand>();
+        services.AddScoped<WithdrawCommand>();
+        services.AddScoped<BetCommand>();
+        services.AddScoped<ExitCommand>();
         
         // Build service provider
         var serviceProvider = services.BuildServiceProvider();
@@ -110,17 +118,4 @@ class Program
             }
         }
     }
-
-    private static async Task<CommandResult> ExecuteCommandAsync(string command, decimal amount, Player player, ICommandHandler commandHandler)
-    {
-        return command.ToLowerInvariant() switch
-        {
-            "deposit" => await commandHandler.HandleDepositAsync(player, amount),
-            "withdraw" => await commandHandler.HandleWithdrawAsync(player, amount),
-            "bet" => await commandHandler.HandleBetAsync(player, amount),
-            "exit" => await commandHandler.HandleExitAsync(),
-            _ =>  CommandResult.Error("Invalid command")
-        };
-    }
-
 }

@@ -6,73 +6,40 @@ using Casino.Application.Services;
 using Microsoft.Extensions.Logging;
 using Casino.Core.ValueObjects;
 using Casino.Core.Results;
+using Casino.Core.DTOs;
 
 namespace Casino.Application.Commands;
 
 public class BetCommand : BaseCommand<CommandResult>
 {
-    private readonly Player _player;
-    private readonly decimal _betAmount;
-    private readonly ISlotGameService _gameService;
-    private readonly GameConfiguration _gameConfig;
+    
+    private readonly WalletService _walletService;
 
-    public BetCommand(ILogger logger, Player player, decimal betAmount, 
-                     ISlotGameService gameService, GameConfiguration gameConfig) 
+    public BetCommand(ILogger logger, 
+    WalletService walletService) 
         : base(logger)
     {
-        _player = player;
-        _betAmount = betAmount;
-        _gameService = gameService;
-        _gameConfig = gameConfig;
+        _walletService = walletService;
     }
 
-    public override Task<CommandResult> ExecuteAsync()
+    public override Task<CommandResult> ExecuteAsync(CommandRequest request)
     {
-        try
+        _logger.LogInformation("Bet Command executing for player {PlayerId} with amount {Amount}", 
+            request.Player.Id, request.Amount);
+
+        var result = _walletService.PlaceBet(request.Player, request.Amount);
+
+        if (result.IsSuccess)
         {
-            Logger.LogInformation("Executing BetCommand for player {PlayerId} with amount {Amount}", 
-                _player.Id, _betAmount);
-
-            var betAmount = new BetAmount(_betAmount);
-
-            // Validate bet amount
-            if (!_gameConfig.IsValidBetAmount(betAmount))
-            {
-                return Task.FromResult(CommandResult.Error($"Bet amount must be between ${_gameConfig.MinimumBet} and ${_gameConfig.MaximumBet}"));
-            }
-
-            // Place bet
-            _player.Wallet.PlaceBet(betAmount);
-
-            // Determine game result using game engine
-            var resultType = _gameService.DetermineGameResult(_gameConfig);
-            var winAmount = _gameService.CalculateWinAmount(betAmount, resultType, _gameConfig);
-
-            // Accept winnings if any
-            if (winAmount > 0)
-            {
-                var winnings = new Money(winAmount);
-                _player.Wallet.AcceptWin(winnings);
-            }
-
-            var resultMessage = resultType switch
-            {
-                GameResultType.Loss => $"No luck this time! Your current balance is: ${_player.Wallet.Balance:F2}",
-                GameResultType.SmallWin => $"Congrats - you won ${winAmount:F2}! Your current balance is: ${_player.Wallet.Balance:F2}",
-                GameResultType.BigWin => $"Congrats - you won ${winAmount:F2}! Your current balance is: ${_player.Wallet.Balance:F2}",
-                _ => "Unknown result"
-            };
-
-            Logger.LogInformation("Bet completed for player {PlayerId}. Result: {ResultType}, Win Amount: {WinAmount}, New Balance: {NewBalance}", 
-                _player.Id, resultType, winAmount, _player.Wallet.Balance);
-
-            return Task.FromResult(CommandResult.Success(resultMessage, _player.Wallet.Balance));
+            _logger.LogInformation("Withdrawal Command completed successfully for player {PlayerId}. New balance: {NewBalance}", 
+                request.Player.Id, request.Player.Wallet.Balance);
         }
-        catch (Exception ex)
+        else
         {
-            Logger.LogError(ex, "An unexpected error occurred during bet for player {PlayerId} with amount {Amount}", 
-                _player.Id, _betAmount);
-            return Task.FromResult(CommandResult.Error("An unexpected error occurred during betting."));
+            _logger.LogWarning("Withdrawal Command failed for player {PlayerId}: {Error}", 
+                request.Player.Id, result.Message);
         }
+
+        return Task.FromResult(result);
     }
 }

@@ -1,4 +1,6 @@
 using Casino.Core.Commands;
+using Casino.Core.DTOs;
+using Casino.Core.Entities;
 using Casino.Core.Results;
 using Microsoft.Extensions.Logging;
 
@@ -10,9 +12,10 @@ public class ExitCommand : BaseCommand<CommandResult>
     {
     }
 
-    public override Task<CommandResult> ExecuteAsync()
+    public override Task<CommandResult> ExecuteAsync(CommandRequest request)
     {
-        Logger.LogInformation("Executing ExitCommand");
+        _logger.LogInformation("Exit Command Executing");
+
         return Task.FromResult(CommandResult.Success("Thank you for playing! Hope to see you again soon."));
     }
 }

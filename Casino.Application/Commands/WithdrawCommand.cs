@@ -1,58 +1,40 @@
 using Casino.Core.Commands;
 using Casino.Core.Entities;
 using Casino.Core.Results;
-using Casino.Core.ValueObjects;
+using Casino.Application.Services;
 using Microsoft.Extensions.Logging;
+using Casino.Core.DTOs;
 
 namespace Casino.Application.Commands;
 
 public class WithdrawCommand : BaseCommand<CommandResult>
 {
-    private readonly Player _player;
-    private readonly decimal _amount;
+    private readonly IWalletService _walletService;
 
-    public WithdrawCommand(ILogger logger, Player player, decimal amount) 
-        : base(logger)
+    public WithdrawCommand(IWalletService walletService, ILogger<WithdrawCommand> logger)
+    : base(logger)
     {
-        _player = player;
-        _amount = amount;
+        _walletService = walletService;
     }
 
-    public override Task<CommandResult> ExecuteAsync()
+    public override Task<CommandResult> ExecuteAsync(CommandRequest request)
     {
-        try
-        {
-            Logger.LogInformation("Executing WithdrawCommand for player {PlayerId} with amount {Amount}", 
-                _player.Id, _amount);
+        _logger.LogInformation("Withdraw Command executing for player {PlayerId} with amount {Amount}", 
+            request.Player.Id, request.Amount);
 
-            var money = new Money(_amount);
-            
-            _player.Wallet.Withdraw(money);
-
-            Logger.LogInformation("Withdrawal successful for player {PlayerId}. New balance: {NewBalance}", 
-                _player.Id, _player.Wallet.Balance);
-
-            return Task.FromResult(CommandResult.Success(
-                $"Your withdrawal of ${_amount:F2} was successful. Your current balance is: ${_player.Wallet.Balance:F2}",
-                _player.Wallet.Balance));
-        }
-        catch (ArgumentException ex)
+        var result = _walletService.Withdraw(request.Player, request.Amount);
+        
+        if (result.IsSuccess)
         {
-            Logger.LogWarning(ex, "Withdrawal failed for player {PlayerId} with amount {Amount}", 
-                _player.Id, _amount);
-            return Task.FromResult(CommandResult.Error($"Withdrawal failed: {ex.Message}"));
+            _logger.LogInformation("Withdrawal Command completed successfully for player {PlayerId}. New balance: {NewBalance}", 
+                request.Player.Id, request.Player.Wallet.Balance);
         }
-        catch (InvalidOperationException ex)
+        else
         {
-            Logger.LogWarning(ex, "Withdrawal failed for player {PlayerId} with amount {Amount}", 
-                _player.Id, _amount);
-            return Task.FromResult(CommandResult.Error($"Withdrawal failed: {ex.Message}"));
+            _logger.LogWarning("Withdrawal Command failed for player {PlayerId}: {Error}", 
+                request.Player.Id, result.Message);
         }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "An unexpected error occurred during withdrawal for player {PlayerId} with amount {Amount}", 
-                _player.Id, _amount);
-            return Task.FromResult(CommandResult.Error("An unexpected error occurred during withdrawal."));
-        }
+        
+        return Task.FromResult(result);
     }
 }

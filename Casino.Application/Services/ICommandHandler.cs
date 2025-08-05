@@ -9,4 +9,5 @@ public interface ICommandHandler
     Task<CommandResult> HandleWithdrawAsync(Player player, decimal amount);
     Task<CommandResult> HandleBetAsync(Player player, decimal betAmount);
     Task<CommandResult> HandleExitAsync();
+    Task<CommandResult> ExecuteCommandAsync(string command, decimal amount, Player player);
 }

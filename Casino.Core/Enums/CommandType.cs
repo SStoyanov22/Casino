@@ -1,9 +1,9 @@
 namespace Casino.Core.Enums;
 
-public enum TransactionType 
+public enum CommandType
 {
     Deposit,
-    Withdrawal,
+    Withdraw,
     Bet,
-    Win
+    Exit
 }
