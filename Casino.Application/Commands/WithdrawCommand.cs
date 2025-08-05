@@ -1,7 +1,6 @@
 using Casino.Core.Commands;
-using Casino.Core.Entities;
 using Casino.Core.Results;
-using Casino.Application.Services;
+using Casino.Infrastructure.Interfaces;
 using Microsoft.Extensions.Logging;
 using Casino.Core.DTOs;
 using Casino.Core.Enums;

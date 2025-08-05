@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Casino.Core\Casino.Core.csproj" />
+    <ProjectReference Include="..\Casino.Infrastructure\Casino.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

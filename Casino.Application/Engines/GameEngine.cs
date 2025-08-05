@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using Casino.Application.Services;
+using Casino.Infrastructure.Interfaces;
 using Casino.Core.Constants;
 
 namespace Casino.Application.Engines;

@@ -1,9 +1,10 @@
 using Casino.Application.Commands;
 using Casino.Application.Engines;
-using Casino.Application.Services;
 using Casino.Core.Commands;
 using Casino.Core.Configurations;
 using Casino.Core.Results;
+using Casino.Infrastructure.Interfaces;
+using Casino.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -59,6 +60,7 @@ public static class ServiceConfiguration
             services.AddScoped<IGameEngine, GameEngine>();
             services.AddScoped<IWalletService, WalletService>();
             services.AddScoped<IApplicationService, ApplicationService>();
+            services.AddScoped<ICryptoRandomService, CryptoRandomService>();
         }
         
         private static void RegisterCommands(IServiceCollection services)

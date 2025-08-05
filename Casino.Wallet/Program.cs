@@ -1,11 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Casino.Application.Services;
-using Casino.Core.Entities;
 using Casino.Wallet.Configuration;
 using Casino.Application.Engines;
 using Casino.Core.Constants;
-using System.Globalization;
 
 namespace Casino.Wallet;
 
@@ -13,13 +10,6 @@ class Program
 {
     static async Task Main(string[] args)
     {
-        // Force USD currency formatting
-        var usCulture = CultureInfo.GetCultureInfo("en-US");
-        CultureInfo.DefaultThreadCurrentCulture = usCulture;
-        CultureInfo.DefaultThreadCurrentUICulture = usCulture;
-        Thread.CurrentThread.CurrentCulture = usCulture;
-        Thread.CurrentThread.CurrentUICulture = usCulture;
-        
         // Configure all services
         var serviceProvider = ServiceConfiguration.ConfigureServices();
 

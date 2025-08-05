@@ -8,6 +8,13 @@ namespace Casino.Infrastructure.Services;
 
 public class SlotGameService : ISlotGameService
 {
+    private readonly ICryptoRandomService _cryptoRandomService;
+
+    public SlotGameService(ICryptoRandomService cryptoRandomService)
+    {
+        _cryptoRandomService = cryptoRandomService;
+    }
+
     /// <summary>
     /// Calculates the win amount based on the bet amount and the game result type
     /// </summary>
@@ -19,8 +26,8 @@ public class SlotGameService : ISlotGameService
         return gameResultType switch
         {
             GameResultType.Loss => 0m,
-            GameResultType.SmallWin => betAmount *  GetRandomMultiplier(1.0m, gameConfiguration.SmallWinMaxMultiplier),
-            GameResultType.BigWin => betAmount * GetRandomMultiplier(gameConfiguration.BigWinMinMultiplier, gameConfiguration.BigWinMaxMultiplier),
+            GameResultType.SmallWin => betAmount * _cryptoRandomService.GetRandomDecimal(1.0m, gameConfiguration.SmallWinMaxMultiplier),
+            GameResultType.BigWin => betAmount * _cryptoRandomService.GetRandomDecimal(gameConfiguration.BigWinMinMultiplier, gameConfiguration.BigWinMaxMultiplier),
             _ => throw new ArgumentException(UserMessages.InvalidGameResultType)
         };
 
@@ -33,14 +40,13 @@ public class SlotGameService : ISlotGameService
     /// <returns>The game result</returns>
     public GameResultType DetermineGameResult(GameConfiguration config)
     {
-        var rng = new Random();
-        var randomValue = rng.NextDouble();
+        var randomValue = _cryptoRandomService.GetRandomDecimal(0, 1);
 
-        if ((decimal)randomValue < config.LossProbability)
+        if (randomValue < config.LossProbability)
         {
             return GameResultType.Loss;
         }
-        else if ((decimal)randomValue < config.LossProbability + config.SmallWinProbability)
+        else if (randomValue < config.LossProbability + config.SmallWinProbability)
         {
             return GameResultType.SmallWin;
         }
