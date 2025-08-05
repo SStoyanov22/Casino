@@ -1,21 +1,27 @@
 using Casino.Core.Commands;
+using Casino.Core.Constants;
 using Casino.Core.DTOs;
 using Casino.Core.Entities;
+using Casino.Core.Enums;
 using Casino.Core.Results;
 using Microsoft.Extensions.Logging;
 
 namespace Casino.Application.Commands;
 
-public class ExitCommand : BaseCommand<CommandResult>
+public class ExitCommand : ICommand<CommandResult>
 {
-    public ExitCommand(ILogger logger) : base(logger)
+    private readonly ILogger<ExitCommand> _logger;
+    public CommandType CommandType => CommandType.Exit;
+
+    public ExitCommand(ILogger<ExitCommand> logger)
     {
+        _logger = logger;
     }
 
-    public override Task<CommandResult> ExecuteAsync(CommandRequest request)
+    public Task<CommandResult> ExecuteAsync(CommandRequest request)
     {
-        _logger.LogInformation("Exit Command Executing");
+        _logger.LogInformation(LogMessages.CommandExecutionExit);
 
-        return Task.FromResult(CommandResult.Success("Thank you for playing! Hope to see you again soon."));
+        return Task.FromResult(CommandResult.Success(UserMessages.Goodbye));
     }
 }

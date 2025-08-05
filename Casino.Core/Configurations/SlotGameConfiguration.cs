@@ -48,12 +48,6 @@ public class GameConfiguration
                ValidateProbabilities();
     }
 
-    /// Validations
-    public bool IsValidBetAmount(decimal amount)
-    {   
-        return amount >= MinimumBet && amount <= MaximumBet;
-    }
-
     private bool ValidateProbabilities()
     {
         decimal totalProbability = LossProbability + SmallWinProbability + BigWinProbability;

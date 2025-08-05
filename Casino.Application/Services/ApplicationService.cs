@@ -1,58 +1,61 @@
+using Casino.Core.Constants;
+using Casino.Core.DTOs;
 using Casino.Core.Entities;
+using Casino.Core.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace Casino.Application.Services;
 
 public class ApplicationService : IApplicationService
 {
-    private readonly ICommandHandler _commandHandler;
+    private readonly ICommandDispatcher _commandDispatcher;
     private readonly IConsoleService _consoleService;
     private readonly ILogger<ApplicationService> _logger;
 
     public ApplicationService(
-        ICommandHandler commandHandler,
+        ICommandDispatcher commandDispatcher,
          IConsoleService consoleService,
           ILogger<ApplicationService> logger)
     {
-        _commandHandler = commandHandler;
+        _commandDispatcher = commandDispatcher;
         _consoleService = consoleService;
         _logger = logger;
     }
 
-    public Task RunAsync()
+    public async Task RunAsync()
     {
-        var player = new Player();
-
+        var player = new Player(); // Starts with $0 balance
+    
+        // Show welcome and instructions
+        _consoleService.DisplayMessage(UserMessages.Welcome);
+        _consoleService.DisplayMessage(UserMessages.AvailableCommands);
+        _consoleService.DisplayMessage(""); // Empty line
         while (true)
-        {
-            while (true)
         {
             try
             {
-                var input = _consoleService.GetUserInput("Please, submit action: ");
+                var input = _consoleService.GetUserInput(UserMessages.PromptAction);
                 if (string.IsNullOrEmpty(input))
                     {
-                        _consoleService.DisplayMessage("Please enter a valid command.");
+                        _consoleService.DisplayMessage(UserMessages.PleaseEnterValidCommand);
                         continue;
                     }
 
                 // Parse input
                 var (command, amount) = _consoleService.ParseInput(input);
-                
-                if (!_consoleService.IsValidCommand(command))
-                {
-                    _consoleService.DisplayMessage($"Invalid command: {command}");
-                    continue;
-                }
 
-                // Execute command
-                var result = await _commandHandler.ExecuteCommandAsync(command, amount, player, commandHandler);
+                // Parse command and create request
+                var commandType = _consoleService.ResolveCommand(command);
+                var request = new CommandRequest(amount, player);
+
+                // Dispatch command
+                var result = await _commandDispatcher.DispatchAsync(commandType, request);
                 
                 // Display result
                 _consoleService.DisplayMessage(result.Message);
 
                 // Check if user wants to exit
-                if (input.Equals("exit", StringComparison.OrdinalIgnoreCase))
+                if (commandType == CommandType.Exit)
                 {
                     break;
                 }
@@ -60,11 +63,9 @@ public class ApplicationService : IApplicationService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error in main application loop");
-                Console.WriteLine("An unexpected error occurred. Please try again.");
-                Console.WriteLine();
+                _logger.LogError(ex, UserMessages.UnexpectedErrorInMainLoop);
+                _consoleService.DisplayMessage(UserMessages.UnexpectedErrorInMainLoop);
             }
-        }
         }
     }
 }

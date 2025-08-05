@@ -10,10 +10,12 @@ public class Money
     {
         if (amount < 0) 
         {
-            throw new ArgumentException(ExceptionMessages.MoneyAmountCannotBeNegative);
+            throw new ArgumentException(LogMessages.MoneyAmountCannotBeNegative);
         }
         Amount = amount;
     }
+
+    public override string ToString() => $"{Amount}";
 
     public static implicit operator decimal(Money money) => money.Amount;
     public static implicit operator Money(decimal amount) => new(amount);

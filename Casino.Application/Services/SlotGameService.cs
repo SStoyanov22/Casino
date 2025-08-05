@@ -20,7 +20,7 @@ public class SlotGameService : ISlotGameService
             GameResultType.Loss => 0m,
             GameResultType.SmallWin => betAmount *  GetRandomMultiplier(1.0m, gameConfiguration.SmallWinMaxMultiplier),
             GameResultType.BigWin => betAmount * GetRandomMultiplier(gameConfiguration.BigWinMinMultiplier, gameConfiguration.BigWinMaxMultiplier),
-            _ => throw new ArgumentException(ExceptionMessages.InvalidGameResultType)
+            _ => throw new ArgumentException(UserMessages.InvalidGameResultType)
         };
 
     }

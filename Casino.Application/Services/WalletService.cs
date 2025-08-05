@@ -2,6 +2,7 @@ using Casino.Core.Entities;
 using Casino.Core.ValueObjects;
 using Casino.Core.Results;
 using Microsoft.Extensions.Logging;
+using Casino.Core.Constants;
 
 namespace Casino.Application.Services;
 
@@ -36,23 +37,21 @@ public class WalletService : IWalletService
             
             player.Wallet.Balance = newBalance;
             
-            _logger.LogInformation("Deposit successful for player {PlayerId}. New balance: {NewBalance}", 
-                player.Id, newBalance);
+            _logger.LogInformation(LogMessages.DepositSuccessful, 
+                depositMoney, newBalance);
 
             return CommandResult.Success(
-                $"Your deposit of ${amount:F2} was successful. Your current balance is: ${newBalance:F2}");
+                string.Format(UserMessages.DepositSuccessful, depositMoney, newBalance));
         }
         catch (ArgumentException ex)
         {
-            _logger.LogWarning(ex, "Deposit failed for player {PlayerId} with amount {Amount}", 
-                player.Id, amount);
-            return CommandResult.Error($"Deposit failed: {ex.Message}");
+            _logger.LogWarning(ex, LogMessages.DepositFailed, amount);
+            return CommandResult.Error(string.Format(UserMessages.DepositFailed, ex.Message));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An unexpected error occurred during deposit for player {PlayerId} with amount {Amount}", 
-                player.Id, amount);
-            return CommandResult.Error("An unexpected error occurred during deposit.");
+            _logger.LogError(ex, LogMessages.DepositUnexpectedError, amount);
+            return CommandResult.Error(UserMessages.DepositUnexpectedError);
         }
     }
 
@@ -73,7 +72,7 @@ public class WalletService : IWalletService
             // Check sufficient funds
             if (!HasSufficientFunds(player, amount))
             {
-                throw new InvalidOperationException("Insufficient funds for withdrawal.");
+                throw new InvalidOperationException(LogMessages.InsufficientFunds);
             }
 
             // Perform withdrawal
@@ -82,29 +81,27 @@ public class WalletService : IWalletService
             
             player.Wallet.Balance = newBalance;
 
-            _logger.LogInformation("Withdrawal successful for player {PlayerId}. New balance: {NewBalance}", 
+            _logger.LogInformation(LogMessages.WithdrawSuccessful, 
                 player.Id, newBalance);
 
             return CommandResult.Success(
-                $"Your withdrawal of ${amount:F2} was successful. Your current balance is: ${newBalance:F2}");
+                UserMessages.WithdrawSuccessful,
+                newBalance);
         }
         catch (ArgumentException ex)
         {
-            _logger.LogWarning(ex, "Withdrawal failed for player {PlayerId} with amount {Amount}", 
-                player.Id, amount);
-            return CommandResult.Error($"Withdrawal failed: {ex.Message}");
+            _logger.LogWarning(ex, LogMessages.WithdrawFailed, amount);
+            return CommandResult.Error(string.Format(UserMessages.WithdrawFailed, ex.Message));
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogWarning(ex, "Withdrawal failed for player {PlayerId} with amount {Amount}", 
-                player.Id, amount);
-            return CommandResult.Error($"Withdrawal failed: {ex.Message}");
+            _logger.LogWarning(ex, LogMessages.WithdrawFailed, amount);
+            return CommandResult.Error(string.Format(UserMessages.WithdrawFailed, amount));
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Withdrawal failed for player {PlayerId} with amount {Amount}", 
-                player.Id, amount);
-            return CommandResult.Error("An unexpected error occurred during withdrawal.");
+            _logger.LogWarning(ex, LogMessages.WithdrawUnexpectedError, amount);
+            return CommandResult.Error(string.Format(UserMessages.WithdrawUnexpectedError, amount));
         }
     }
 
@@ -125,7 +122,7 @@ public class WalletService : IWalletService
             // Check sufficient funds
             if (!HasSufficientFunds(player, betAmount))
             {
-                throw new InvalidOperationException("Insufficient funds for bet.");
+                throw new InvalidOperationException(LogMessages.InsufficientFunds);
             }
 
             // Perform bet
@@ -134,27 +131,24 @@ public class WalletService : IWalletService
             
             player.Wallet.Balance = newBalance;
 
-            _logger.LogInformation("Bet placed: Player {PlayerId}, Amount: {Amount}, New Balance: {Balance}", 
-                player.Id, betAmount, newBalance);
+            _logger.LogInformation(LogMessages.BetSuccessful, newBalance);
 
-            return CommandResult.Success($"Bet of ${betAmount:F2} placed successfully.");
+            return CommandResult.Success(UserMessages.BetWin, newBalance);
         }
         catch (ArgumentException ex)
         {
-            _logger.LogWarning(ex, "Bet placement failed for player {PlayerId} with bet amount {Amount}", 
-                player.Id, betAmount);
-            return CommandResult.Error($"Bet placement failed: {ex.Message}");
+            _logger.LogWarning(ex, LogMessages.BetFailed, betAmount);
+            return CommandResult.Error(string.Format(UserMessages.BetFailed, ex.Message));
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogWarning(ex, "Bet placement failed for player {PlayerId} with bet amount {Amount}", 
-                player.Id, betAmount);
-            return CommandResult.Error($"Bet placement failed: {ex.Message}");
+            _logger.LogWarning(ex, LogMessages.BetFailed, betAmount);
+            return CommandResult.Error(string.Format(UserMessages.BetFailed, betAmount));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error during bet placement: Amount {Amount}", betAmount);
-            return CommandResult.Error("Bet placement failed. Please try again.");
+            _logger.LogError(ex, LogMessages.BetUnexpectedError, betAmount);
+            return CommandResult.Error(UserMessages.BetUnexpectedError);
         }
     }
 
@@ -162,11 +156,6 @@ public class WalletService : IWalletService
     {
         try
         {
-            if (winAmount <= 0)
-            {
-                return CommandResult.Error("Win amount must be positive.");
-            }
-
             // Create money value object
             var winMoney = new Money(winAmount);
 
@@ -176,21 +165,20 @@ public class WalletService : IWalletService
             
             player.Wallet.Balance = newBalance;
 
-            _logger.LogInformation("Win accepted: Player {PlayerId}, Amount: {Amount}, New Balance: {Balance}", 
+            _logger.LogInformation(LogMessages.WinSuccessful, 
                 player.Id, winAmount, newBalance);
 
-            return CommandResult.Success($"Win of ${winAmount:F2} accepted successfully.");
+            return CommandResult.Success(UserMessages.WinSuccessful, newBalance);
         }
         catch (ArgumentException ex)
         {
-            _logger.LogWarning(ex, "Win acceptance failed for player {PlayerId} with amount {Amount}", 
-                player.Id, winAmount);
-            return CommandResult.Error($"Win acceptance failed: {ex.Message}");
+            _logger.LogWarning(ex, LogMessages.WinFailed, winAmount);
+            return CommandResult.Error(string.Format(UserMessages.WinFailed, winAmount));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error during win acceptance: Amount {Amount}", winAmount);
-            return CommandResult.Error("Win acceptance failed. Please try again.");
+            _logger.LogError(ex, LogMessages.WinUnexpectedError, winAmount);
+            return CommandResult.Error(string.Format(UserMessages.WinUnexpectedError, winAmount));
         }
     }
 

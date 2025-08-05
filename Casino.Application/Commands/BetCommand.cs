@@ -4,40 +4,56 @@ using Casino.Core.Configurations;
 using Casino.Core.Enums;
 using Casino.Application.Services;
 using Microsoft.Extensions.Logging;
-using Casino.Core.ValueObjects;
 using Casino.Core.Results;
 using Casino.Core.DTOs;
+using Casino.Core.Constants;
 
 namespace Casino.Application.Commands;
 
-public class BetCommand : BaseCommand<CommandResult>
+public class BetCommand : ICommand<CommandResult>
 {
-    
-    private readonly WalletService _walletService;
+    private readonly ILogger<BetCommand> _logger;
+    private readonly IWalletService _walletService;
+    private readonly ISlotGameService _slotGameService;
+    public CommandType CommandType => CommandType.Bet;
 
-    public BetCommand(ILogger logger, 
-    WalletService walletService) 
-        : base(logger)
+    public BetCommand(ILogger<BetCommand> logger, 
+    IWalletService walletService,
+    ISlotGameService slotGameService) 
     {
         _walletService = walletService;
+        _logger = logger;
+        _slotGameService = slotGameService;
     }
 
-    public override Task<CommandResult> ExecuteAsync(CommandRequest request)
+    public Task<CommandResult> ExecuteAsync(CommandRequest request)
     {
-        _logger.LogInformation("Bet Command executing for player {PlayerId} with amount {Amount}", 
-            request.Player.Id, request.Amount);
+        _logger.LogInformation(LogMessages.CommandExecutionStarted,
+         typeof(BetCommand).Name, request.Player.Id, request.Amount);
 
-        var result = _walletService.PlaceBet(request.Player, request.Amount);
+        var gameConfiguration = new GameConfiguration();
+        var gameResult = _slotGameService.DetermineGameResult(gameConfiguration);
+        var winAmount = _slotGameService.CalculateWinAmount(request.Amount, gameResult, gameConfiguration);
 
-        if (result.IsSuccess)
+        CommandResult result;
+        if (winAmount > 0)
         {
-            _logger.LogInformation("Withdrawal Command completed successfully for player {PlayerId}. New balance: {NewBalance}", 
-                request.Player.Id, request.Player.Wallet.Balance);
+            result = _walletService.AcceptWin(request.Player, winAmount);
         }
         else
         {
-            _logger.LogWarning("Withdrawal Command failed for player {PlayerId}: {Error}", 
-                request.Player.Id, result.Message);
+            result = _walletService.PlaceBet(request.Player, request.Amount);
+        }
+
+        if (result.IsSuccess)
+        {
+            _logger.LogInformation(LogMessages.CommandExecutionCompleted, 
+                 typeof(BetCommand).Name, request.Player.Id, request.Player.Wallet.Balance);
+        }
+        else
+        {
+            _logger.LogWarning(LogMessages.CommandExecutionFailed, 
+            typeof(BetCommand).Name, request.Player.Id, result.Message);
         }
 
         return Task.FromResult(result);

@@ -9,12 +9,20 @@ public class BetAmount
 
     public BetAmount(decimal amount)
     {
-        if (amount < GameConfiguration.Instance.MinimumBet || amount > GameConfiguration.Instance.MaximumBet)
+        if (amount < GameConfiguration.Instance.MinimumBet ||
+         amount > GameConfiguration.Instance.MaximumBet)
         {
-            throw new ArgumentException($"Bet must be between ${GameConfiguration.Instance.MinimumBet:F2} and ${GameConfiguration.Instance.MaximumBet:F2}");
+            throw new ArgumentException(
+                string.Format(UserMessages.BetAmountOutMustBeBetween,
+                GameConfiguration.Instance.MinimumBet,
+                 GameConfiguration.Instance.MaximumBet),
+                nameof(amount)
+            );
         }
         Amount = amount;
     }
+
+    public override string ToString() => $"{Amount}";
 
     public static implicit operator decimal(BetAmount bet) => bet.Amount;
 }

@@ -1,11 +1,11 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Casino.Core.Configurations;
 using Casino.Application.Services;
 using Casino.Core.Entities;
-using Casino.Core.Results;
-using Casino.Application.Commands;
+using Casino.Wallet.Configuration;
+using Casino.Application.Engines;
+using Casino.Core.Constants;
+using System.Globalization;
 
 namespace Casino.Wallet;
 
@@ -13,109 +13,33 @@ class Program
 {
     static async Task Main(string[] args)
     {
-        // Setup configuration
-        var configuration = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            .AddEnvironmentVariables()
-            .Build();
-
-        // Setup dependency injection
-        var services = new ServiceCollection();
+        // Force USD currency formatting
+        var usCulture = CultureInfo.GetCultureInfo("en-US");
+        CultureInfo.DefaultThreadCurrentCulture = usCulture;
+        CultureInfo.DefaultThreadCurrentUICulture = usCulture;
         
-        // Register configuration
-        services.AddSingleton<IConfiguration>(configuration);
-        
-        // Register logging
-        services.AddLogging(builder =>
-        {
-            builder.AddConsole();
-            builder.SetMinimumLevel(LogLevel.Information);
-        });
+        // Configure all services
+        var serviceProvider = ServiceConfiguration.ConfigureServices();
 
-        // Register game configuration
-        services.Configure<GameConfiguration>(
-            configuration.GetSection("GameConfiguration"));
-
-        // Register services
-        services.AddScoped<ISlotGameService, SlotGameService>();
-        services.AddScoped<ICommandHandler, CommandHandler>();
-        services.AddScoped<IValidationService, ValidationService>();
-        services.AddScoped<IConsoleService, ConsoleService>();
-
-        // Register commands
-        // Register commands
-        services.AddScoped<DepositCommand>();
-        services.AddScoped<WithdrawCommand>();
-        services.AddScoped<BetCommand>();
-        services.AddScoped<ExitCommand>();
-        
-        // Build service provider
-        var serviceProvider = services.BuildServiceProvider();
-
-        // Get logger
+        // Get required services
         var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
         
-        logger.LogInformation("Casino Application Starting...");
+        logger.LogInformation(LogMessages.ApplicationStarting);
         
-        // Main application logic here
-
-        var player = new Player();
-        var commandHandler = serviceProvider.GetRequiredService<ICommandHandler>();
-        var consoleService = serviceProvider.GetRequiredService<IConsoleService>();
-
-        await RunApplicationAsync(player, commandHandler, consoleService, logger);
-
-        logger.LogInformation("Casino Application Shutdown");
-
-        
-    }
-
-    private static async Task RunApplicationAsync(Player player, ICommandHandler commandHandler, IConsoleService consoleService, ILogger<Program> logger)
-    {
-        Console.WriteLine("Welcome to our Casino!");
-        Console.WriteLine("Available commands: deposit <amount>, withdraw <amount>, bet <amount>, exit");
-        Console.WriteLine();
-
-        while (true)
+        try
         {
-            try
-            {
-                var input = consoleService.GetUserInput("Please, submit action: ");
-                if (string.IsNullOrEmpty(input))
-                    {
-                        consoleService.DisplayMessage("Please enter a valid command.");
-                        continue;
-                    }
-
-                // Parse input
-                var (command, amount) = consoleService.ParseInput(input);
-                
-                if (!consoleService.IsValidCommand(command))
-                {
-                    consoleService.DisplayMessage($"Invalid command: {command}");
-                    continue;
-                }
-
-                // Execute command
-                var result = await ExecuteCommandAsync(command, amount, player, commandHandler);
-                
-                // Display result
-                consoleService.DisplayMessage(result.Message);
-
-                // Check if user wants to exit
-                if (input.Equals("exit", StringComparison.OrdinalIgnoreCase))
-                {
-                    break;
-                }
-                
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Unexpected error in main application loop");
-                Console.WriteLine("An unexpected error occurred. Please try again.");
-                Console.WriteLine();
-            }
+            var gameEngine = serviceProvider.GetRequiredService<IGameEngine>();
+            await gameEngine.StartAsync();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, LogMessages.FatalErrorOccurred);
+        }
+        finally
+        {
+            logger.LogInformation(LogMessages.ApplicationShutdown);
+            if (serviceProvider is IDisposable disposable)
+                disposable.Dispose();
         }
     }
 }

@@ -22,7 +22,7 @@ public class ValidationService : IValidationService
             "deposit" => ValidateDepositAmount(amount),
             "withdraw" => ValidateWithdrawAmount(amount, 0), // Balance will be checked in command
             "bet" => ValidateBetAmount(amount),
-            _ => ValidationResult.Error($"Unknown operation: {operation}")
+            _ => ValidationResult.Error(UserMessages.UnknownOperation)
         };
     }
 
@@ -30,18 +30,15 @@ public class ValidationService : IValidationService
     {
         if (amount <= 0)
         {
-            return ValidationResult.Error(ExceptionMessages.BetAmountMustBeGreaterThanZero);
+            return ValidationResult.Error(UserMessages.BetAmountMustBeGreaterThanZero);
         }
 
-        if (!_gameConfig.IsValidBetAmount(amount))
+        if (amount < _gameConfig.MinimumBet || amount > _gameConfig.MaximumBet)
         {
-            return ValidationResult.Error(ExceptionMessages.BetAmountMustBeLessThanMaximumAllowed);
+                return ValidationResult.Error(
+                    string.Format(UserMessages.BetAmountOutMustBeBetween, _gameConfig.MinimumBet, _gameConfig.MaximumBet));
         }
 
-        if (amount < _gameConfig.MinimumBet)
-        {
-            return ValidationResult.Error(ExceptionMessages.BetAmountMustBeGreaterThanMinimumAllowed);
-        }
 
         return ValidationResult.Success();
     }
@@ -50,7 +47,7 @@ public class ValidationService : IValidationService
     {
         if (amount <= 0)
         {
-            return ValidationResult.Error(ExceptionMessages.DepositAmountMustBeGreaterThanZero);
+            return ValidationResult.Error(UserMessages.DepositAmountMustBeGreaterThanZero);
         }
 
         return ValidationResult.Success();
@@ -60,12 +57,12 @@ public class ValidationService : IValidationService
     {
         if (amount <= 0)
         {
-            return ValidationResult.Error(ExceptionMessages.WithdrawAmountMustBeGreaterThanZero);
+            return ValidationResult.Error(UserMessages.WithdrawAmountMustBeGreaterThanZero);
         }
 
         if (amount > balance)
         {
-            return ValidationResult.Error(ExceptionMessages.WithdrawAmountMustBeLessThanBalance);
+            return ValidationResult.Error(UserMessages.WithdrawAmountMustBeLessThanBalance);
         }
 
         return ValidationResult.Success();

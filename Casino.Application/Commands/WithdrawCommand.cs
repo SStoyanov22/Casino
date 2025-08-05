@@ -4,35 +4,39 @@ using Casino.Core.Results;
 using Casino.Application.Services;
 using Microsoft.Extensions.Logging;
 using Casino.Core.DTOs;
+using Casino.Core.Enums;
+using Casino.Core.Constants;
 
 namespace Casino.Application.Commands;
 
-public class WithdrawCommand : BaseCommand<CommandResult>
+public class WithdrawCommand : ICommand<CommandResult>
 {
+    private readonly ILogger<WithdrawCommand> _logger;
     private readonly IWalletService _walletService;
+    public CommandType CommandType => CommandType.Withdraw;
 
     public WithdrawCommand(IWalletService walletService, ILogger<WithdrawCommand> logger)
-    : base(logger)
     {
         _walletService = walletService;
+        _logger = logger;
     }
 
-    public override Task<CommandResult> ExecuteAsync(CommandRequest request)
+    public Task<CommandResult> ExecuteAsync(CommandRequest request)
     {
-        _logger.LogInformation("Withdraw Command executing for player {PlayerId} with amount {Amount}", 
-            request.Player.Id, request.Amount);
+        _logger.LogInformation(LogMessages.CommandExecutionStarted, 
+            typeof(WithdrawCommand).Name, request.Player.Id, request.Amount);
 
         var result = _walletService.Withdraw(request.Player, request.Amount);
         
         if (result.IsSuccess)
         {
-            _logger.LogInformation("Withdrawal Command completed successfully for player {PlayerId}. New balance: {NewBalance}", 
-                request.Player.Id, request.Player.Wallet.Balance);
+            _logger.LogInformation(LogMessages.CommandExecutionCompleted, 
+                typeof(WithdrawCommand).Name, request.Player.Id, request.Player.Wallet.Balance);
         }
         else
         {
-            _logger.LogWarning("Withdrawal Command failed for player {PlayerId}: {Error}", 
-                request.Player.Id, result.Message);
+            _logger.LogWarning(LogMessages.CommandExecutionFailed, 
+            typeof(WithdrawCommand).Name, request.Player.Id, result.Message);
         }
         
         return Task.FromResult(result);
