@@ -17,6 +17,8 @@ class Program
         var usCulture = CultureInfo.GetCultureInfo("en-US");
         CultureInfo.DefaultThreadCurrentCulture = usCulture;
         CultureInfo.DefaultThreadCurrentUICulture = usCulture;
+        Thread.CurrentThread.CurrentCulture = usCulture;
+        Thread.CurrentThread.CurrentUICulture = usCulture;
         
         // Configure all services
         var serviceProvider = ServiceConfiguration.ConfigureServices();

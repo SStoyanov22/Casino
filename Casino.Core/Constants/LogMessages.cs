@@ -20,8 +20,8 @@ namespace Casino.Core.Constants
         public const string UnexpectedErrorInMainLoop = "Unexpected error in main application loop";
         
         // Commands
-        public const string CommandExecutionStarted = "Executing {0} command for player {PlayerId} with amount {1:C}";
-        public const string CommandExecutionCompleted = "{0} command completed for player {1} with new balance {2:C}";
+        public const string CommandExecutionStarted = "Executing {0} command for player {PlayerId} with amount ${1:0.##}";
+        public const string CommandExecutionCompleted = "{0} command completed for player {1} with new balance {2}";
         public const string CommandExecutionFailed = "{0} command failed for player {1}: {2}";
         public const string CommandExecutionExit = "Exit command executing";
         public const string CommandExecutionExitSuccess = "Exit command executed successfully";
@@ -32,24 +32,24 @@ namespace Casino.Core.Constants
         public const string InvalidCommand = "Invalid command.";
 
         // Wallet service
-        public const string DepositSuccessful = "Deposit of {0:C} was succesful. Current balance is {1:C}";
-        public const string DepositFailed = "Deposit of {0:C} has failed.";
-        public const string DepositUnexpectedError = "An unexpected error occurred during deposit of {0:C}";
-        public const string WithdrawSuccessful = "Withdrawal of {0:C} was succesful. Current balance is {1:C}";
-        public const string WithdrawFailed = "Your withdrawal of {0:C} has failed.";
-        public const string WithdrawUnexpectedError = "An unexpected error occurred during withdrawal of {Amou0nt:C}";
-        public const string BetSuccessful = "Bet successful. New balance: {0:C}";
-        public const string BetFailed = "Bet failed with amount {0:C}";
-        public const string BetUnexpectedError = "An unexpected error occurred during bet of {0:C}";
-        public const string WinSuccessful = "Win successful. New balance: {0:C}";
-        public const string WinFailed = "Win failed with amount {0:C}";
-        public const string WinUnexpectedError = "An unexpected error occurred during win of {0:C}";
+        public const string DepositSuccessful = "Deposit of ${0:0.##} was succesful. Current balance is ${1:0.##}";
+        public const string DepositFailed = "Deposit of ${0:0.##} has failed.";
+        public const string DepositUnexpectedError = "An unexpected error occurred during deposit of ${0:0.##}";
+        public const string WithdrawSuccessful = "Withdrawal of ${0:0.##} was succesful. Current balance is ${1:0.##}";
+        public const string WithdrawFailed = "Your withdrawal of ${0:0.##} has failed.";
+        public const string WithdrawUnexpectedError = "An unexpected error occurred during withdrawal of ${0:0.##}";
+        public const string AcceptLossSuccessful = "Accept Loss successful. New balance: ${0:0.##}";
+        public const string AcceptLossFailed = "Accept Loss failed with amount ${0:0.##}";
+        public const string AcceptLossUnexpectedError = "An unexpected error occurred during Accept Loss of ${0:0.##}";
+        public const string AcceptWinSuccessful = "Accept Win successful. New balance: ${0:0.##}";
+        public const string AcceptWinFailed = "Accept Win failed with amount ${0:0.##}";
+        public const string AcceptWinUnexpectedError = "An unexpected error occurred during win of ${0:0.##}";
 
         //Input
         public const string InputEmpty = "Input is empty";
         public const string ErrorReadingUserInput = "Error reading user input";
         public const string EmptyInputAfterSplitting = "Empty input after splitting";
-        public const string ParsedInput = "Parsed input - Command: {0}, Amount: {1:C}";
+        public const string ParsedInput = "Parsed input - Command: {0}, Amount: ${1:0.##}";
 
         // Validation
         public const string ValidationStarted = "Starting validation for {0}";
@@ -57,8 +57,8 @@ namespace Casino.Core.Constants
         public const string ValidationFailed = "Validation failed for {0}: {1}";
         
         // Game operations
-        public const string GameResultWin = "Player {0} won {1:C} with bet {2:C}";
-        public const string GameResultLoss = "Player {0} lost bet {1:C}";
+        public const string GameResultWin = "Player {0} won ${1:0.##} with bet ${2:0.##}";
+        public const string GameResultLoss = "Player {0} lost bet ${1:0.##}";
         
         // Configuration
         public const string ConfigurationLoaded = "Configuration loaded successfully";
@@ -81,7 +81,7 @@ namespace Casino.Core.Constants
         public const string WithdrawAmountMustBeGreaterThanMinimumAllowed = "Withdraw amount must be greater than minimum allowed";
         public const string BetAmountMustBeGreaterThanZero = "Bet amount must be greater than zero";
         public const string BetAmountMustBeLessThanBalance = "Bet amount must be less than balance";
-        public const string BetAmountOutOfRange = "Bet amount must be between {0:C} and {1:C}";
+        public const string BetAmountOutOfRange = "Bet amount must be between ${0:0.##} and ${1:0.##}";
         // Wallet operations
         public const string InsufficientFunds = "Insufficient funds";
         public const string InvalidGameResultType = "Invalid game result type";

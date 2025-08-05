@@ -1,3 +1,4 @@
+using System.Globalization;
 using Casino.Core.Constants;
 
 namespace Casino.Core.ValueObjects;
@@ -15,7 +16,7 @@ public class Money
         Amount = amount;
     }
 
-    public override string ToString() => $"{Amount}";
+    public override string ToString() => string.Format("${0:0.##}", Amount);
 
     public static implicit operator decimal(Money money) => money.Amount;
     public static implicit operator Money(decimal amount) => new(amount);

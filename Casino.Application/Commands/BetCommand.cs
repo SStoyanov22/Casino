@@ -1,5 +1,4 @@
 using Casino.Core.Commands;
-using Casino.Core.Entities;
 using Casino.Core.Configurations;
 using Casino.Core.Enums;
 using Casino.Application.Services;
@@ -42,7 +41,7 @@ public class BetCommand : ICommand<CommandResult>
         }
         else
         {
-            result = _walletService.PlaceBet(request.Player, request.Amount);
+            result = _walletService.AcceptLoss(request.Player, request.Amount);
         }
 
         if (result.IsSuccess)

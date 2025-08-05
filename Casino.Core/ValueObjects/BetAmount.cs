@@ -1,3 +1,4 @@
+using System.Globalization;
 using Casino.Core.Configurations;
 using Casino.Core.Constants;
 
@@ -22,7 +23,7 @@ public class BetAmount
         Amount = amount;
     }
 
-    public override string ToString() => $"{Amount}";
-
     public static implicit operator decimal(BetAmount bet) => bet.Amount;
+
+    public static implicit operator BetAmount(decimal amount) => new(amount);
 }

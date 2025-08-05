@@ -4,8 +4,9 @@ using Casino.Core.Results;
 using Microsoft.Extensions.Logging;
 using Casino.Core.Constants;
 using System.Globalization;
+using Casino.Infrastructure.Interfaces;
 
-namespace Casino.Application.Services;
+namespace Casino.Infrastructure.Services;
 
 public class WalletService : IWalletService
 {

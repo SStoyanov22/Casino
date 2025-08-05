@@ -1,8 +1,7 @@
 using Casino.Core.Entities;
-using Casino.Core.ValueObjects;
 using Casino.Core.Results;
 
-namespace Casino.Application.Services;
+namespace Casino.Infrastructure.Interfaces;
 
 public interface IWalletService
 {
