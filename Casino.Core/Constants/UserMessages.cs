@@ -10,7 +10,7 @@ namespace Casino.Core.Constants
         public const string PleaseEnterValidCommand = "Please enter a valid command.";
         
         // Available commands
-        public const string AvailableCommands = @"Available commands: \n - deposit <amount> \n - withdraw <amount> \n - bet <amount> \n - exit";
+        public const string AvailableCommands = @"Available commands: deposit <amount> | withdraw <amount> | bet <amount> | exit";
         
         // Command results
         public const string DepositSuccessful = "Your deposit of ${0:0.##} was succesful. Your current balance is ${1:0.##}";
