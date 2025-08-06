@@ -67,9 +67,16 @@ public class ConsoleService : IConsoleService
          else if (parts.Length == 2 && 
             decimal.TryParse(parts[1], out amount))
         {
-            _logger.LogInformation(LogMessages.ParsedInput, command, amount);
+            if(commandType != CommandType.Exit)
+            {
+                _logger.LogInformation(LogMessages.ParsedInput, command, amount);
 
-            return (commandType, amount);
+                return (commandType, amount);
+            }
+            else
+            {
+                throw new ArgumentException(string.Format(LogMessages.CommandWithoutAmount, command));
+            }
         }
         else {
             _logger.LogInformation(LogMessages.ParsedInputWithOneArgument, command);

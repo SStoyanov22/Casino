@@ -19,9 +19,9 @@ namespace Casino.Core.Constants
         public const string CommandExecutionExit = "Exit command executing";
         public const string CommandNotFound = "Command of type {0} not found";
         public const string ParsedInputWithOneArgument = "Parsed input without amount - Command: {0}";
-        public const string CommandRequiresAmount = "Command {0} requires an amount";
         public const string CommandInvalidAmountFormat = "Invalid amount format for command {0}: {1}";
         public const string InvalidCommand = "Invalid command: {0}";
+        public const string CommandWithoutAmount = "Command {0} does not require an amount";
 
         // Wallet service
         public const string DepositSuccessful = "Deposit of ${0:0.##} was succesful. Current balance is ${1:0.##}";
