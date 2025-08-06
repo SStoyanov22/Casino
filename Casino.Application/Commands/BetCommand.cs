@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Casino.Core.Results;
 using Casino.Core.DTOs;
 using Casino.Core.Constants;
+using Microsoft.Extensions.Options;
 
 namespace Casino.Application.Commands;
 
@@ -15,18 +16,21 @@ public class BetCommand : ICommand<CommandResult>
     private readonly IWalletService _walletService;
     private readonly ISlotGameService _slotGameService;
     private readonly IValidationService _validationService;
+    private readonly IOptions<GameConfiguration> _gameConfiguration;
     public CommandType CommandType => CommandType.Bet;
     
 
     public BetCommand(ILogger<BetCommand> logger, 
     IWalletService walletService,
     ISlotGameService slotGameService,
-    IValidationService validationService) 
+    IValidationService validationService,
+    IOptions<GameConfiguration> gameConfiguration) 
     {
         _walletService = walletService;
         _logger = logger;
         _slotGameService = slotGameService;
         _validationService = validationService;
+        _gameConfiguration = gameConfiguration;
     }
 
     public Task<CommandResult> ExecuteAsync(CommandRequest request)
@@ -42,10 +46,8 @@ public class BetCommand : ICommand<CommandResult>
                 typeof(BetCommand).Name, request.Player.Id, validationResult.ErrorMessage);
             return Task.FromResult(CommandResult.Error(validationResult.ErrorMessage));
         }
-
-        var gameConfiguration = new GameConfiguration();
-        var gameResult = _slotGameService.DetermineGameResult(gameConfiguration);
-        var winAmount = _slotGameService.CalculateWinAmount(request.Amount, gameResult, gameConfiguration);
+        var gameResult = _slotGameService.DetermineGameResult(_gameConfiguration.Value);
+        var winAmount = _slotGameService.CalculateWinAmount(request.Amount, gameResult, _gameConfiguration.Value);
 
         CommandResult result;
         if (winAmount > 0)

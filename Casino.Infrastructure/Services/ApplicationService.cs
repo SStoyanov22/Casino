@@ -12,6 +12,7 @@ public class ApplicationService : IApplicationService
     private readonly ICommandDispatcher _commandDispatcher;
     private readonly IConsoleService _consoleService;
     private readonly ILogger<ApplicationService> _logger;
+    private readonly Player _player;
 
     public ApplicationService(
         ICommandDispatcher commandDispatcher,
@@ -21,11 +22,11 @@ public class ApplicationService : IApplicationService
         _commandDispatcher = commandDispatcher;
         _consoleService = consoleService;
         _logger = logger;
+        _player = new Player();
     }
 
     public async Task RunAsync()
     {
-        var player = new Player(); // Starts with $0 balance
     
         // Show welcome and instructions
         _consoleService.DisplayMessage(UserMessages.Welcome);
@@ -45,7 +46,8 @@ public class ApplicationService : IApplicationService
                 // Parse input
                 var (commandType, amount) = _consoleService.ParseInput(input);
 
-                var request = new CommandRequest(amount ?? 0, player);
+                // Create command request
+                var request = new CommandRequest(amount ?? 0, _player);
 
                 // Dispatch command
                 var result = await _commandDispatcher.DispatchAsync(commandType, request);

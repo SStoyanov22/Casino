@@ -55,22 +55,4 @@ public class SlotGameService : ISlotGameService
             return GameResultType.BigWin;
         }
     }
-
-    /// <summary>
-    /// Generates a random multiplier between a minimum and maximum value
-    /// </summary>
-    /// <param name="min">The minimum value</param>
-    /// <param name="max">The maximum value</param>
-    /// <returns>A random multiplier between the minimum and maximum value</returns>
-    private static decimal GetRandomMultiplier(decimal min, decimal max)
-    {
-        // Generate random integer between 0 and 1000000 for precision
-        int randomInt = RandomNumberGenerator.GetInt32(0, 1000001);
-        
-        // Convert to decimal between 0 and 1
-        decimal randomDecimal = (decimal)randomInt / 1000000m;
-        
-        // Scale to range
-        return min + (randomDecimal * (max - min));
-    }
 }

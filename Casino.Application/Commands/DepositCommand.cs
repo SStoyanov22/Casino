@@ -5,6 +5,8 @@ using Microsoft.Extensions.Logging;
 using Casino.Core.DTOs;
 using Casino.Core.Enums;
 using Casino.Core.Constants;
+using Casino.Core.Configurations;
+using Microsoft.Extensions.Options;
 
 namespace Casino.Application.Commands;
 
@@ -16,7 +18,10 @@ public class DepositCommand : ICommand<CommandResult>
 
     public CommandType CommandType => CommandType.Deposit;
 
-    public DepositCommand(IWalletService walletService, ILogger<DepositCommand> logger, IValidationService validationService)
+    public DepositCommand(
+        IWalletService walletService,
+        ILogger<DepositCommand> logger, 
+        IValidationService validationService)
     {
         _walletService = walletService;
         _logger = logger;
