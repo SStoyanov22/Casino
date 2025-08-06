@@ -1,6 +1,6 @@
 namespace Casino.Infrastructure.Interfaces;
 
-public interface ICryptoRandomService
+public interface IRandomNumberGeneratorService
 {
     int GetRandomInt(int min, int max);
     decimal GetRandomDecimal(decimal min, decimal max);

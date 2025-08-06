@@ -3,7 +3,7 @@ using Casino.Infrastructure.Interfaces;
 
 namespace Casino.Infrastructure.Services;
 
-public class CryptoRandomService : ICryptoRandomService
+public class RandomNumberGeneratorService : IRandomNumberGeneratorService
 {
     public int GetRandomInt(int min, int max)
     {
