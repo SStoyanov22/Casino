@@ -46,8 +46,19 @@ public class ApplicationService : IApplicationService
                 var (command, amount) = _consoleService.ParseInput(input);
 
                 // Parse command and create request
-                var commandType = _consoleService.ResolveCommand(command);
-                var request = new CommandRequest(amount, player);
+                CommandType commandType;
+                try
+                {
+                    commandType = _consoleService.ResolveCommand(command);
+                }
+                catch (ArgumentException ex)
+                {
+                    _logger.LogWarning(ex.Message, LogMessages.InvalidCommand, command);
+                    _consoleService.DisplayMessage(UserMessages.InvalidCommand);
+                    continue;
+                }
+
+                var request = new CommandRequest(amount.Value, player);
 
                 // Dispatch command
                 var result = await _commandDispatcher.DispatchAsync(commandType, request);
@@ -64,7 +75,7 @@ public class ApplicationService : IApplicationService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, UserMessages.UnexpectedErrorInMainLoop);
+                _logger.LogError(ex.Message, UserMessages.UnexpectedErrorInMainLoop);
                 _consoleService.DisplayMessage(UserMessages.UnexpectedErrorInMainLoop);
             }
         }

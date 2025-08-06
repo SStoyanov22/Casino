@@ -14,21 +14,34 @@ public class BetCommand : ICommand<CommandResult>
     private readonly ILogger<BetCommand> _logger;
     private readonly IWalletService _walletService;
     private readonly ISlotGameService _slotGameService;
+    private readonly IValidationService _validationService;
     public CommandType CommandType => CommandType.Bet;
+    
 
     public BetCommand(ILogger<BetCommand> logger, 
     IWalletService walletService,
-    ISlotGameService slotGameService) 
+    ISlotGameService slotGameService,
+    IValidationService validationService) 
     {
         _walletService = walletService;
         _logger = logger;
         _slotGameService = slotGameService;
+        _validationService = validationService;
     }
 
     public Task<CommandResult> ExecuteAsync(CommandRequest request)
     {
         _logger.LogInformation(LogMessages.CommandExecutionStarted,
          typeof(BetCommand).Name, request.Player.Id, request.Amount);
+
+        // Validate bet amount first
+        var validationResult = _validationService.ValidateAmount(CommandType.Bet, request.Amount);
+        if (!validationResult.IsValid)
+        {
+            _logger.LogWarning(LogMessages.CommandExecutionFailed, 
+                typeof(BetCommand).Name, request.Player.Id, validationResult.ErrorMessage);
+            return Task.FromResult(CommandResult.Error(validationResult.ErrorMessage));
+        }
 
         var gameConfiguration = new GameConfiguration();
         var gameResult = _slotGameService.DetermineGameResult(gameConfiguration);

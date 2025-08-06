@@ -1,5 +1,6 @@
 using Casino.Core.Constants;
 using Casino.Core.Enums;
+using Casino.Core.Exceptions;
 using Casino.Infrastructure.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -29,48 +30,47 @@ public class ConsoleService : IConsoleService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, LogMessages.ErrorReadingUserInput);
+            _logger.LogError(ex.Message, LogMessages.ErrorReadingUserInput);
 
             return null;
         }
     }
 
-    public (string Command, decimal Amount) ParseInput(string input)
+    public (string Command, decimal? Amount) ParseInput(string input)
     {
         if (string.IsNullOrWhiteSpace(input))
         {
             _logger.LogWarning(LogMessages.InputEmpty);
-            return ("invalid", 0);
+            throw new ParseInputException(LogMessages.InputEmpty);
         }
 
         var parts = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         if (parts.Length == 0)
         {
             _logger.LogWarning(LogMessages.EmptyInputAfterSplitting);
-            return ("invalid", 0);
+            throw new ParseInputException(LogMessages.EmptyInputAfterSplitting);
         }
 
         var command = parts[0].ToLowerInvariant();
-        decimal amount = 0m;
 
         // Commands that don't require amounts
         if (IsCommandWithoutAmount(command))
         {
-            _logger.LogDebug(LogMessages.ParsedCommandWithoutAmount, command);
-            return (command, 0);
+            _logger.LogDebug(string.Format(LogMessages.ParsedCommandWithoutAmount, command));
+            return (command, null);
         }
 
         // Commands that require amounts
         if (parts.Length != 2)
         {
             _logger.LogWarning(LogMessages.CommandRequiresAmount, command);
-            return ("invalid", 0);
+            throw new ParseInputException(string.Format(LogMessages.CommandRequiresAmount, command));
         }
 
-        if (!decimal.TryParse(parts[1], out amount))
+        if (!decimal.TryParse(parts[1], out decimal amount))
         {
             _logger.LogWarning(LogMessages.CommandInvalidAmountFormat, command, parts[1]);
-            return ("invalid", 0);
+            throw new ParseInputException(string.Format(LogMessages.CommandInvalidAmountFormat, command, parts[1]));
         }
 
         _logger.LogDebug(LogMessages.ParsedInput, command, amount);
@@ -85,7 +85,7 @@ public class ConsoleService : IConsoleService
             "withdraw" => CommandType.Withdraw,
             "bet" => CommandType.Bet,
             "exit" => CommandType.Exit,
-            _ => throw new ArgumentException(LogMessages.InvalidCommand)
+            _ => throw new ArgumentException(LogMessages.InvalidCommand, command)
         };
 
         return commandType;

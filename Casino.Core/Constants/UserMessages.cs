@@ -41,6 +41,8 @@ namespace Casino.Core.Constants
         public const string WithdrawAmountMustBeLessThanBalance = "Withdraw amount must be less than balance";
         public const string DepositAmountMustBeGreaterThanZero = "Deposit amount must be greater than zero";
         public const string BetAmountMustBeGreaterThanZero = "Bet amount must be greater than zero";
+        public const string InvalidCommand = "Invalid command: {0}. Available commands: deposit, withdraw, bet, exit";
+        
         // Wallet operations
         public const string InvalidGameResultType = "Invalid game result type";
     

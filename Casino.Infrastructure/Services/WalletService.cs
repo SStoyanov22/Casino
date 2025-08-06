@@ -4,17 +4,16 @@ using Casino.Core.Results;
 using Microsoft.Extensions.Logging;
 using Casino.Core.Constants;
 using Casino.Infrastructure.Interfaces;
+using System.Globalization;
 
 namespace Casino.Infrastructure.Services;
 
 public class WalletService : IWalletService
 {
-    private readonly IValidationService _validationService;
     private readonly ILogger<WalletService> _logger;
 
-    public WalletService(IValidationService validationService, ILogger<WalletService> logger)
+    public WalletService(ILogger<WalletService> logger)
     {
-        _validationService = validationService;
         _logger = logger;
     }
 
@@ -22,14 +21,7 @@ public class WalletService : IWalletService
     {
         try
         {
-            // Validate deposit amount
-            var validationResult = _validationService.ValidateDepositAmount(amount);
-            if (!validationResult.IsValid)
-            {
-                return CommandResult.Error(validationResult.ErrorMessage);
-            }
-
-            // Create money value object
+            // Create money value object (validation done at command level)
             var depositMoney = new Money(amount);
 
             // Perform deposit
@@ -42,17 +34,17 @@ public class WalletService : IWalletService
                 amount, newBalance);
 
             return CommandResult.Success(
-                string.Format(UserMessages.DepositSuccessful, amount, newBalance));
+                string.Format(CultureInfo.InvariantCulture, UserMessages.DepositSuccessful, amount, newBalance));
         }
         catch (ArgumentException ex)
         {
-            _logger.LogWarning(ex, LogMessages.DepositFailed, amount);
+            _logger.LogWarning(ex.Message, LogMessages.DepositFailed, amount);
             return CommandResult.Error(
                 string.Format(UserMessages.DepositFailed, amount));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, LogMessages.DepositUnexpectedError, amount);
+            _logger.LogError(ex.Message, LogMessages.DepositUnexpectedError, amount);
             return CommandResult.Error(
                 string.Format(UserMessages.DepositFailed, amount));
         }
@@ -62,14 +54,7 @@ public class WalletService : IWalletService
     {
         try
         {
-            // Validate withdrawal amount
-            var validationResult = _validationService.ValidateWithdrawAmount(amount, player.Wallet.Balance);
-            if (!validationResult.IsValid)
-            {
-                return CommandResult.Error(validationResult.ErrorMessage);
-            }
-
-            // Create money value object
+            // Create money value object (validation done at command level)
             var withdrawMoney = new Money(amount);
 
             // Check sufficient funds
@@ -85,26 +70,26 @@ public class WalletService : IWalletService
             player.Wallet.Balance = newBalance;
 
             _logger.LogInformation(LogMessages.WithdrawSuccessful, 
-                amount, newBalance);
+                amount, (decimal)newBalance);
 
             return CommandResult.Success(
-                string.Format(UserMessages.WithdrawSuccessful, amount, newBalance));
+                string.Format(UserMessages.WithdrawSuccessful, amount, (decimal)newBalance));
         }
         catch (ArgumentException ex)
         {
-            _logger.LogWarning(ex, LogMessages.WithdrawFailed, amount);
+            _logger.LogWarning(ex.Message, LogMessages.WithdrawFailed, amount);
             return CommandResult.Error(
                 string.Format(UserMessages.WithdrawFailed, amount));
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogWarning(ex, LogMessages.WithdrawFailed, amount);
+            _logger.LogWarning(ex.Message, LogMessages.WithdrawFailed, amount);
             return CommandResult.Error(
                 string.Format(UserMessages.WithdrawFailed, amount));
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, LogMessages.WithdrawUnexpectedError, amount);
+            _logger.LogWarning(ex.Message, LogMessages.WithdrawUnexpectedError, amount);
             return CommandResult.Error(
                 string.Format(UserMessages.WithdrawFailed, amount));
         }
@@ -114,14 +99,7 @@ public class WalletService : IWalletService
     {
         try
         {
-            // Validate bet amount
-            var validationResult = _validationService.ValidateBetAmount(betAmount);
-            if (!validationResult.IsValid)
-            {
-                return CommandResult.Error(validationResult.ErrorMessage);
-            }
-
-            // Create bet amount value object
+            // Create bet amount value object (validation done at command level)
             var betMoney = new BetAmount(betAmount);
 
             // Check sufficient funds
@@ -136,26 +114,26 @@ public class WalletService : IWalletService
             
             player.Wallet.Balance = newBalance;
 
-            _logger.LogInformation(LogMessages.AcceptLossSuccessful, newBalance);
+            _logger.LogInformation(LogMessages.AcceptLossSuccessful, (decimal)newBalance);
 
             return CommandResult.Success(
-                string.Format(UserMessages.AcceptLossSuccessful, newBalance));
+                string.Format(UserMessages.AcceptLossSuccessful, (decimal)newBalance));
         }
         catch (ArgumentException ex)
         {
-            _logger.LogWarning(ex, LogMessages.AcceptLossFailed, betAmount);
+            _logger.LogWarning(ex.Message, LogMessages.AcceptLossFailed, betAmount);
             return CommandResult.Error(
                 string.Format(UserMessages.AcceptLossFailed, betAmount));
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogWarning(ex, LogMessages.AcceptLossFailed, betAmount);
+            _logger.LogWarning(ex.Message, LogMessages.AcceptLossFailed, betAmount);
             return CommandResult.Error(
                 string.Format(UserMessages.AcceptLossFailed, betAmount));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, LogMessages.AcceptLossUnexpectedError, betAmount);
+            _logger.LogError(ex.Message, LogMessages.AcceptLossUnexpectedError, betAmount);
             return CommandResult.Error(
                 string.Format(UserMessages.AcceptLossFailed, betAmount));
         }
@@ -174,20 +152,20 @@ public class WalletService : IWalletService
             
             player.Wallet.Balance = newBalance;
 
-            _logger.LogInformation(LogMessages.AcceptWinSuccessful, newBalance);
+            _logger.LogInformation(LogMessages.AcceptWinSuccessful, (decimal)newBalance);
             
             return CommandResult.Success(
-                string.Format(UserMessages.AcceptWinSuccessful, winAmount, newBalance));
+                string.Format(UserMessages.AcceptWinSuccessful, winAmount, (decimal)newBalance));
         }
         catch (ArgumentException ex)
         {
-            _logger.LogWarning(ex, LogMessages.AcceptWinFailed, winAmount);
+            _logger.LogWarning(ex.Message, LogMessages.AcceptWinFailed, winAmount);
             return CommandResult.Error(
                 string.Format(UserMessages.AcceptWinFailed, winAmount));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, LogMessages.AcceptWinUnexpectedError, winAmount);
+            _logger.LogError(ex.Message, LogMessages.AcceptWinUnexpectedError, winAmount);
             return CommandResult.Error(string.Format(UserMessages.AcceptWinFailed, winAmount));
         }
     }

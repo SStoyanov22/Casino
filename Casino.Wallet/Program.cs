@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Casino.Wallet.Configuration;
 using Casino.Application.Engines;
 using Casino.Core.Constants;
+using System.Globalization;
 
 namespace Casino.Wallet;
 
@@ -10,6 +11,11 @@ class Program
 {
     static async Task Main(string[] args)
     {
+        // Set global culture for consistent USD formatting
+        var usCulture = CultureInfo.GetCultureInfo("en-US");
+        CultureInfo.DefaultThreadCurrentCulture = usCulture;
+        CultureInfo.DefaultThreadCurrentUICulture = usCulture;
+        
         // Configure all services
         var serviceProvider = ServiceConfiguration.ConfigureServices();
 
@@ -25,7 +31,7 @@ class Program
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, LogMessages.FatalErrorOccurred);
+            logger.LogError(ex.Message, LogMessages.FatalErrorOccurred);
         }
         finally
         {

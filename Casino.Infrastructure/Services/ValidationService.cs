@@ -3,6 +3,7 @@ using Casino.Core.Configurations;
 using Casino.Core.Constants;
 using Casino.Core.Results;
 using Casino.Infrastructure.Interfaces;
+using Casino.Core.Enums;
 
 namespace Casino.Infrastructure.Services;
 
@@ -15,18 +16,18 @@ public class ValidationService : IValidationService
         _gameConfig = gameConfig.Value;
         GameConfiguration.Initialize(_gameConfig); // Initialize static instance
     }
-    public ValidationResult ValidateAmount(decimal amount, string operation)
+    public ValidationResult ValidateAmount(CommandType commandType, decimal amount, decimal? balance = null)
     {
-        return operation.ToLowerInvariant() switch
+        return commandType switch
         {
-            "deposit" => ValidateDepositAmount(amount),
-            "withdraw" => ValidateWithdrawAmount(amount, 0), // Balance will be checked in command
-            "bet" => ValidateBetAmount(amount),
+            CommandType.Deposit => ValidateDepositAmount(amount),
+            CommandType.Withdraw => ValidateWithdrawAmount(amount, balance ?? 0), // Balance should be provided for withdraw
+            CommandType.Bet => ValidateBetAmount(amount),
             _ => ValidationResult.Error(UserMessages.UnknownOperation)
         };
     }
 
-    public ValidationResult ValidateBetAmount(decimal amount)
+    private ValidationResult ValidateBetAmount(decimal amount)
     {
         if (amount <= 0)
         {
@@ -43,7 +44,7 @@ public class ValidationService : IValidationService
         return ValidationResult.Success();
     }
 
-    public ValidationResult ValidateDepositAmount(decimal amount)
+    private ValidationResult ValidateDepositAmount(decimal amount)
     {
         if (amount <= 0)
         {
@@ -53,7 +54,7 @@ public class ValidationService : IValidationService
         return ValidationResult.Success();
     }
 
-    public ValidationResult ValidateWithdrawAmount(decimal amount, decimal balance)
+    private ValidationResult ValidateWithdrawAmount(decimal amount, decimal balance)
     {
         if (amount <= 0)
         {
