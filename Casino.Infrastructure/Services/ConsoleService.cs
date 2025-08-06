@@ -36,48 +36,48 @@ public class ConsoleService : IConsoleService
         }
     }
 
-    public (string Command, decimal? Amount) ParseInput(string input)
+    public (CommandType commandType, decimal? amount) ParseInput(string input)
     {
         if (string.IsNullOrWhiteSpace(input))
         {
-            _logger.LogWarning(LogMessages.InputEmpty);
             throw new ParseInputException(LogMessages.InputEmpty);
         }
 
         var parts = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         if (parts.Length == 0)
         {
-            _logger.LogWarning(LogMessages.EmptyInputAfterSplitting);
             throw new ParseInputException(LogMessages.EmptyInputAfterSplitting);
         }
 
-        var command = parts[0].ToLowerInvariant();
-
-        // Commands that don't require amounts
-        if (IsCommandWithoutAmount(command))
+        var command = parts[0];
+        
+        if (parts.Length > 2)
         {
-            _logger.LogDebug(string.Format(LogMessages.ParsedCommandWithoutAmount, command));
-            return (command, null);
+            throw new ArgumentException(LogMessages.InputTooLong);
         }
 
-        // Commands that require amounts
-        if (parts.Length != 2)
-        {
-            _logger.LogWarning(LogMessages.CommandRequiresAmount, command);
-            throw new ParseInputException(string.Format(LogMessages.CommandRequiresAmount, command));
-        }
+        decimal amount = 0;
+        var commandType = ResolveCommand(command);
 
-        if (!decimal.TryParse(parts[1], out decimal amount))
+        if (parts.Length == 2 &&
+            !decimal.TryParse(parts[1], out amount))
         {
-            _logger.LogWarning(LogMessages.CommandInvalidAmountFormat, command, parts[1]);
             throw new ParseInputException(string.Format(LogMessages.CommandInvalidAmountFormat, command, parts[1]));
         }
+         else if (parts.Length == 2 && 
+            decimal.TryParse(parts[1], out amount))
+        {
+            _logger.LogInformation(LogMessages.ParsedInput, command, amount);
 
-        _logger.LogDebug(LogMessages.ParsedInput, command, amount);
-        return (command, amount);
+            return (commandType, amount);
+        }
+        else {
+            _logger.LogInformation(LogMessages.ParsedInputWithOneArgument, command);
+            return (commandType, null);
+        }
     }
 
-    public CommandType ResolveCommand(string command)
+    private static CommandType ResolveCommand(string command)
     {
         var commandType = command.Trim().ToLowerInvariant() switch
         {
@@ -85,14 +85,9 @@ public class ConsoleService : IConsoleService
             "withdraw" => CommandType.Withdraw,
             "bet" => CommandType.Bet,
             "exit" => CommandType.Exit,
-            _ => throw new ArgumentException(LogMessages.InvalidCommand, command)
+            _ => throw new InvalidCommandException(string.Format(LogMessages.InvalidCommand, command))
         };
 
         return commandType;
-    }
-
-    private static bool IsCommandWithoutAmount(string command)
-    {
-        return command == "exit" ? true : false;
     }
 }

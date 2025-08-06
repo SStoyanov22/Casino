@@ -18,9 +18,9 @@ namespace Casino.Core.Constants
         public const string CommandExecutionFailed = "{0} command failed for player {1}: {2}";
         public const string CommandExecutionExit = "Exit command executing";
         public const string CommandNotFound = "Command of type {0} not found";
-        public const string ParsedCommandWithoutAmount = "Parsed command without amount - Command: {0}";
+        public const string ParsedInputWithOneArgument = "Parsed input without amount - Command: {0}";
         public const string CommandRequiresAmount = "Command {0} requires an amount";
-        public const string CommandInvalidAmountFormat = "Invalid amount format for command {0}: {1:0.##}";
+        public const string CommandInvalidAmountFormat = "Invalid amount format for command {0}: {1}";
         public const string InvalidCommand = "Invalid command: {0}";
 
         // Wallet service
@@ -39,6 +39,7 @@ namespace Casino.Core.Constants
 
         //Input
         public const string InputEmpty = "Input is empty";
+        public const string InputTooLong = "Input is has too many arguments.";
         public const string ErrorReadingUserInput = "Error reading user input";
         public const string EmptyInputAfterSplitting = "Empty input after splitting";
         public const string ParsedInput = "Parsed input - Command: {0}, Amount: ${1:0.##}";

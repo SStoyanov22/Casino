@@ -6,6 +6,5 @@ public interface IConsoleService
 {
     string? GetUserInput(string prompt);
     void DisplayMessage(string message);
-    (string Command, decimal? Amount) ParseInput(string input);
-    CommandType ResolveCommand(string command);
+    (CommandType commandType, decimal? amount) ParseInput(string input);
 }
