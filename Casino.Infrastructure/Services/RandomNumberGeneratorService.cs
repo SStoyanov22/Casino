@@ -5,11 +5,6 @@ namespace Casino.Infrastructure.Services;
 
 public class RandomNumberGeneratorService : IRandomNumberGeneratorService
 {
-    public int GetRandomInt(int min, int max)
-    {
-        return RandomNumberGenerator.GetInt32(min, max);
-    }
-
     public decimal GetRandomDecimal(decimal min, decimal max)
     {
         var randomBytes = new byte[8];
