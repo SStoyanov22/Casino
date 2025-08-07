@@ -42,11 +42,11 @@ public class SlotGameService : ISlotGameService
     {
         var randomValue = _rngService.GetRandomDecimal(0, 1);
 
-        if (randomValue < config.LossProbability)
+        if (randomValue <= config.LossProbability)
         {
             return GameResultType.Loss;
         }
-        else if (randomValue < config.LossProbability + config.SmallWinProbability)
+        else if (randomValue <= config.LossProbability + config.SmallWinProbability)
         {
             return GameResultType.SmallWin;
         }
