@@ -78,6 +78,9 @@ public class CommandDispatcherTests : TestBase
 
         // Act
         var result = await _commandDispatcher.DispatchAsync(CommandType.Withdraw, request);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(expectedResult));
     }
 
     [Test]
@@ -93,6 +96,9 @@ public class CommandDispatcherTests : TestBase
 
         // Act
         var result = await _commandDispatcher.DispatchAsync(CommandType.Bet, request);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(expectedResult));
     }
 
     [Test]
