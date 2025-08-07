@@ -119,7 +119,7 @@ public class WalletServiceTests : TestBase
         // Assert
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(player.Wallet.Balance, Is.EqualTo(new Money(95)));
-        Assert.That(result.Message, Does.Contain("No luck this time! Your current balance is: $95"));
+        Assert.That(result.Message, Does.Contain("Place Bet successful. Your new balance is: $95"));
     }
 
     [Test]
@@ -183,7 +183,7 @@ public class WalletServiceTests : TestBase
         // Assert
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(player.Wallet.Balance, Is.EqualTo(new Money(9)));
-        Assert.That(result.Message, Does.Contain("No luck this time! Your current balance is: $9"));
+        Assert.That(result.Message, Does.Contain("Place Bet successful. Your new balance is: $9"));
     }
 
     [Test]
@@ -199,7 +199,7 @@ public class WalletServiceTests : TestBase
         // Assert
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(player.Wallet.Balance, Is.EqualTo(new Money(10)));
-        Assert.That(result.Message, Does.Contain("No luck this time! Your current balance is: $10"));
+        Assert.That(result.Message, Does.Contain("Place Bet successful. Your new balance is: $10"));
     }
 
     #endregion
