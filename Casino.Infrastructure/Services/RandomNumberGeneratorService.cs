@@ -11,9 +11,8 @@ public class RandomNumberGeneratorService : IRandomNumberGeneratorService
         RandomNumberGenerator.Fill(randomBytes);
         var randomValue = BitConverter.ToUInt64(randomBytes, 0);
 
-        // Use integer division to create inclusive range
-        // Map [0, ulong.MaxValue] to [0.0, 1.0] inclusively
-        var normalizedValue = randomValue / (double)ulong.MaxValue;
+        // Map [0, ulong.MaxValue] to (0.0, 1.0] - exclusive min, inclusive max
+        var normalizedValue = (randomValue + 1.0) / ((double)ulong.MaxValue + 1.0);
 
         // Adjust to ensure max can be reached
         if (randomValue == ulong.MaxValue)
