@@ -10,16 +10,21 @@ public class BetAmount
 
     public BetAmount(decimal amount)
     {
+        if (amount < 0)
+        {
+            throw new ArgumentException(LogMessages.AmountCannotBeNegative);
+        }
+
         if (amount < GameConfiguration.Instance.MinimumBet ||
          amount > GameConfiguration.Instance.MaximumBet)
         {
             throw new ArgumentException(
                 string.Format(UserMessages.BetAmountOutMustBeBetween,
                 GameConfiguration.Instance.MinimumBet,
-                 GameConfiguration.Instance.MaximumBet),
-                nameof(amount)
+                 GameConfiguration.Instance.MaximumBet)
             );
         }
+
         Amount = amount;
     }
 

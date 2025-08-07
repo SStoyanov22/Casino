@@ -17,6 +17,7 @@ public class BetCommand : ICommand<CommandResult>
     private readonly ISlotGameService _slotGameService;
     private readonly IValidationService _validationService;
     private readonly IOptions<GameConfiguration> _gameConfiguration;
+    private readonly IBettingService _bettingService;
     public CommandType CommandType => CommandType.Bet;
     
 
@@ -24,6 +25,7 @@ public class BetCommand : ICommand<CommandResult>
     IWalletService walletService,
     ISlotGameService slotGameService,
     IValidationService validationService,
+    IBettingService bettingService,
     IOptions<GameConfiguration> gameConfiguration) 
     {
         _walletService = walletService;
@@ -31,6 +33,7 @@ public class BetCommand : ICommand<CommandResult>
         _slotGameService = slotGameService;
         _validationService = validationService;
         _gameConfiguration = gameConfiguration;
+        _bettingService = bettingService;
     }
 
     public Task<CommandResult> ExecuteAsync(CommandRequest request)
@@ -46,18 +49,9 @@ public class BetCommand : ICommand<CommandResult>
                 typeof(BetCommand).Name, request.Player.Id, validationResult.ErrorMessage);
             return Task.FromResult(CommandResult.Error(validationResult.ErrorMessage));
         }
-        var gameResult = _slotGameService.DetermineGameResult(_gameConfiguration.Value);
-        var winAmount = _slotGameService.CalculateWinAmount(request.Amount, gameResult, _gameConfiguration.Value);
 
-        CommandResult result;
-        if (winAmount > 0)
-        {
-            result = _walletService.AcceptWin(request.Player, winAmount);
-        }
-        else
-        {
-            result = _walletService.AcceptLoss(request.Player, request.Amount);
-        }
+        // Process the bet
+        var result = _bettingService.ProcessBet(request.Player, request.Amount);
 
         if (result.IsSuccess)
         {

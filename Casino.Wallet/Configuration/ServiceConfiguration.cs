@@ -60,8 +60,9 @@ public static class ServiceConfiguration
             services.AddScoped<IGameEngine, GameEngine>();
             services.AddScoped<IWalletService, WalletService>();
             services.AddScoped<IApplicationService, ApplicationService>();
+            services.AddScoped<IBettingService, BettingService>();
 
-            services.AddSingleton<IRandomNumberGeneratorService, RandomNumberGeneratorService>();
+        services.AddSingleton<IRandomNumberGeneratorService, RandomNumberGeneratorService>();
         }
         
         private static void RegisterCommands(IServiceCollection services)

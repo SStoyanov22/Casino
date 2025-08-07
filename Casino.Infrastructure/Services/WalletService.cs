@@ -34,19 +34,19 @@ public class WalletService : IWalletService
                 amount, newBalance);
 
             return CommandResult.Success(
-                string.Format(CultureInfo.InvariantCulture, UserMessages.DepositSuccessful, amount, newBalance));
+                string.Format(UserMessages.DepositSuccessful, amount, newBalance));
         }
         catch (ArgumentException ex)
         {
             _logger.LogWarning(ex.Message, LogMessages.DepositFailed, amount);
             return CommandResult.Error(
-                string.Format(UserMessages.DepositFailed, amount));
+                string.Format(ex.Message + " " + UserMessages.DepositFailed, amount));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message, LogMessages.DepositUnexpectedError, amount);
+            _logger.LogError(ex, LogMessages.DepositUnexpectedError, amount);
             return CommandResult.Error(
-                string.Format(UserMessages.DepositFailed, amount));
+                string.Format(UserMessages.DepositUnexpectedError, amount));
         }
     }
 
@@ -70,32 +70,32 @@ public class WalletService : IWalletService
             player.Wallet.Balance = newBalance;
 
             _logger.LogInformation(LogMessages.WithdrawSuccessful, 
-                amount, (decimal)newBalance);
+                amount, newBalance);
 
             return CommandResult.Success(
-                string.Format(UserMessages.WithdrawSuccessful, amount, (decimal)newBalance));
+                string.Format(UserMessages.WithdrawSuccessful, amount, newBalance));
         }
         catch (ArgumentException ex)
         {
-            _logger.LogWarning(ex.Message, LogMessages.WithdrawFailed, amount);
+            _logger.LogWarning(ex.Message + LogMessages.WithdrawFailed, amount);
             return CommandResult.Error(
-                string.Format(UserMessages.WithdrawFailed, amount));
+                string.Format(ex.Message + " " + UserMessages.WithdrawFailed, amount));
         }
         catch (InvalidOperationException ex)
         {
             _logger.LogWarning(ex.Message, LogMessages.WithdrawFailed, amount);
             return CommandResult.Error(
-                string.Format(UserMessages.WithdrawFailed, amount));
+                string.Format(ex.Message + " " + UserMessages.WithdrawFailed, amount));
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex.Message, LogMessages.WithdrawUnexpectedError, amount);
+            _logger.LogError(ex, LogMessages.WithdrawUnexpectedError, amount);
             return CommandResult.Error(
-                string.Format(UserMessages.WithdrawFailed, amount));
+                string.Format(UserMessages.WithdrawUnexpectedError, amount));
         }
     }
 
-    public CommandResult AcceptLoss(Player player, decimal betAmount)
+    public CommandResult PlaceBet(Player player, decimal betAmount)
     {
         try
         {
@@ -114,28 +114,28 @@ public class WalletService : IWalletService
             
             player.Wallet.Balance = newBalance;
 
-            _logger.LogInformation(LogMessages.AcceptLossSuccessful, (decimal)newBalance);
+            _logger.LogInformation(LogMessages.PlaceBetSuccessful, newBalance);
 
             return CommandResult.Success(
-                string.Format(UserMessages.AcceptLossSuccessful, (decimal)newBalance));
+                string.Format(CultureInfo.InvariantCulture, UserMessages.PlaceBetSuccessful, newBalance));
         }
         catch (ArgumentException ex)
         {
-            _logger.LogWarning(ex.Message, LogMessages.AcceptLossFailed, betAmount);
+            _logger.LogWarning(ex.Message, LogMessages.PlaceBetFailed, betAmount);
             return CommandResult.Error(
-                string.Format(UserMessages.AcceptLossFailed, betAmount));
+                string.Format(CultureInfo.InvariantCulture, ex.Message + " " + UserMessages.PlaceBetFailed, betAmount));
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogWarning(ex.Message, LogMessages.AcceptLossFailed, betAmount);
+            _logger.LogWarning(ex.Message, LogMessages.PlaceBetFailed, betAmount);
             return CommandResult.Error(
-                string.Format(UserMessages.AcceptLossFailed, betAmount));
+                string.Format(CultureInfo.InvariantCulture, ex.Message + " " + UserMessages.PlaceBetFailed, betAmount));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message, LogMessages.AcceptLossUnexpectedError, betAmount);
+            _logger.LogError(ex, LogMessages.PlaceBetUnexpectedError, betAmount);
             return CommandResult.Error(
-                string.Format(UserMessages.AcceptLossFailed, betAmount));
+                string.Format(CultureInfo.InvariantCulture, UserMessages.PlaceBetUnexpectedError, betAmount));
         }
     }
 
@@ -152,21 +152,21 @@ public class WalletService : IWalletService
             
             player.Wallet.Balance = newBalance;
 
-            _logger.LogInformation(LogMessages.AcceptWinSuccessful, (decimal)newBalance);
+            _logger.LogInformation(string.Format(CultureInfo.InvariantCulture, LogMessages.AcceptWinSuccessful, newBalance));
             
             return CommandResult.Success(
-                string.Format(UserMessages.AcceptWinSuccessful, winAmount, (decimal)newBalance));
+                string.Format(CultureInfo.InvariantCulture, UserMessages.AcceptWinSuccessful, winAmount, newBalance));
         }
         catch (ArgumentException ex)
         {
             _logger.LogWarning(ex.Message, LogMessages.AcceptWinFailed, winAmount);
             return CommandResult.Error(
-                string.Format(UserMessages.AcceptWinFailed, winAmount));
+                string.Format(CultureInfo.InvariantCulture, ex.Message + " " + UserMessages.AcceptWinFailed, winAmount));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message, LogMessages.AcceptWinUnexpectedError, winAmount);
-            return CommandResult.Error(string.Format(UserMessages.AcceptWinFailed, winAmount));
+            _logger.LogError(ex, LogMessages.AcceptWinUnexpectedError, winAmount);
+            return CommandResult.Error(string.Format(CultureInfo.InvariantCulture, UserMessages.AcceptWinUnexpectedError, winAmount));
         }
     }
 

@@ -11,7 +11,7 @@ public class Money
     {
         if (amount < 0) 
         {
-            throw new ArgumentException(LogMessages.MoneyAmountCannotBeNegative);
+            throw new ArgumentException(LogMessages.AmountCannotBeNegative);
         }
         Amount = amount;
     }
