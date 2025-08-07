@@ -2,11 +2,11 @@ using Casino.Core.Commands;
 using Casino.Core.Configurations;
 using Casino.Core.Enums;
 using Casino.Infrastructure.Interfaces;
-using Microsoft.Extensions.Logging;
 using Casino.Core.Results;
 using Casino.Core.DTOs;
 using Casino.Core.Constants;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 
 namespace Casino.Application.Commands;
 

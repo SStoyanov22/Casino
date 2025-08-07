@@ -1,5 +1,3 @@
-using Casino.Core.Results;
-
 namespace Casino.Core.Results;
 
 public class CommandResult : Result

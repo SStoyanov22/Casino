@@ -5,8 +5,6 @@ using Microsoft.Extensions.Logging;
 using Casino.Core.DTOs;
 using Casino.Core.Enums;
 using Casino.Core.Constants;
-using Casino.Core.Configurations;
-using Microsoft.Extensions.Options;
 
 namespace Casino.Application.Commands;
 

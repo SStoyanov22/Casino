@@ -58,7 +58,6 @@ namespace Casino.Core.Constants
         public const string GameResultLoss = "Game result is a loss for player {0}";
         public const string WinAmountCalculated = "Win amount calculated: ${0:0.##} for player {1}";
         public const string FailedToAcceptWin = "Failed to accept win of ${0:0.##} for player {1}: {2}";
-        public const string WinProcessedSuccessfully = "Win processed successfully. Player {0} final balance: {1:0.##}";
         public const string UnexpectedErrorProcessingBet = "An unexpected error occurred while processing bet of ${0:0.##}";
     }
 }

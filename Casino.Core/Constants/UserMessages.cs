@@ -37,8 +37,5 @@ namespace Casino.Core.Constants
         
         // Wallet operations
         public const string InvalidGameResultType = "Invalid game result type";
-
-        public const string UnexpectedErrorProcessingBet = "An unexpected error occurred while processing bet of ${0:0.##} for player {1}";
-
     }
 }
