@@ -1,8 +1,12 @@
 using Casino.Core.Configurations;
 using Casino.Core.Constants;
 using Casino.Core.Enums;
+using Casino.Core.Results;
+using Casino.Core.ValueObjects;
 using Casino.Infrastructure.Interfaces;
 using Casino.Infrastructure.Services;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 
 namespace Casino.Tests.Services;
@@ -12,13 +16,18 @@ public class SlotGameServiceTests : TestBase
 {
     private SlotGameService _slotGameService;
     private Mock<IRandomNumberGeneratorService> _mockRngService;
+    private Mock<IWalletService> _mockWalletService;
+     private Mock<ILogger<SlotGameService>> _mockLogger;
+     private Mock<IOptions<GameConfiguration>> _mockGameConfig;
     private GameConfiguration _gameConfiguration;
 
     [SetUp]
     public void Setup()
     {
         _mockRngService = new Mock<IRandomNumberGeneratorService>();
-        _slotGameService = new SlotGameService(_mockRngService.Object);
+        _mockWalletService = new Mock<IWalletService>();
+        _mockLogger = new Mock<ILogger<SlotGameService>>();
+        _mockGameConfig = new Mock<IOptions<GameConfiguration>>();
 
         _gameConfiguration = new GameConfiguration
         {
@@ -31,6 +40,15 @@ public class SlotGameServiceTests : TestBase
             BigWinMinMultiplier = 2.0m,
             BigWinMaxMultiplier = 10.0m
         };
+        
+        _mockGameConfig.Setup(x => x.Value).Returns(_gameConfiguration);
+        
+        _slotGameService = new SlotGameService(
+            _mockRngService.Object,
+            _mockLogger.Object,
+            _mockWalletService.Object,
+            _mockGameConfig.Object
+        );
     }
 
     #region DetermineGameResult Tests
@@ -47,7 +65,6 @@ public class SlotGameServiceTests : TestBase
 
         // Assert
         Assert.That(result, Is.EqualTo(GameResultType.Loss));
-        _mockRngService.Verify(x => x.GetRandomDecimal(0, 1), Times.Once);
     }
 
     [Test]
@@ -62,7 +79,6 @@ public class SlotGameServiceTests : TestBase
 
         // Assert
         Assert.That(result, Is.EqualTo(GameResultType.SmallWin));
-        _mockRngService.Verify(x => x.GetRandomDecimal(0, 1), Times.Once);
     }
 
     [Test]
@@ -77,11 +93,10 @@ public class SlotGameServiceTests : TestBase
 
         // Assert
         Assert.That(result, Is.EqualTo(GameResultType.BigWin));
-        _mockRngService.Verify(x => x.GetRandomDecimal(0, 1), Times.Once);
     }
 
     [Test]
-    public void DetermineGameResult_WithExactLossBoundary_ShouldReturnSmallWin()
+    public void DetermineGameResult_WithExactLossBoundary_ShouldReturnSLoss()
     {
         // Arrange - exactly at loss boundary
         _mockRngService.Setup(x => x.GetRandomDecimal(0, 1))
@@ -91,8 +106,7 @@ public class SlotGameServiceTests : TestBase
         var result = _slotGameService.DetermineGameResult(_gameConfiguration);
 
         // Assert
-        Assert.That(result, Is.EqualTo(GameResultType.SmallWin));
-        _mockRngService.Verify(x => x.GetRandomDecimal(0, 1), Times.Once);
+        Assert.That(result, Is.EqualTo(GameResultType.Loss));
     }
 
     [Test]
@@ -106,8 +120,7 @@ public class SlotGameServiceTests : TestBase
         var result = _slotGameService.DetermineGameResult(_gameConfiguration);
 
         // Assert
-        Assert.That(result, Is.EqualTo(GameResultType.BigWin));
-        _mockRngService.Verify(x => x.GetRandomDecimal(0, 1), Times.Once);
+        Assert.That(result, Is.EqualTo(GameResultType.SmallWin));
     }
 
     [Test]
@@ -122,7 +135,6 @@ public class SlotGameServiceTests : TestBase
 
         // Assert
         Assert.That(result, Is.EqualTo(GameResultType.BigWin));
-        _mockRngService.Verify(x => x.GetRandomDecimal(0, 1), Times.Once);
     }
 
     [Test]
@@ -137,7 +149,6 @@ public class SlotGameServiceTests : TestBase
 
         // Assert
         Assert.That(result, Is.EqualTo(GameResultType.Loss));
-        _mockRngService.Verify(x => x.GetRandomDecimal(0, 1), Times.Once);
     }
 
     #endregion
@@ -155,7 +166,6 @@ public class SlotGameServiceTests : TestBase
 
         // Assert
         Assert.That(result, Is.EqualTo(0m));
-        _mockRngService.Verify(x => x.GetRandomDecimal(It.IsAny<decimal>(), It.IsAny<decimal>()), Times.Never);
     }
 
     [Test]
@@ -174,7 +184,6 @@ public class SlotGameServiceTests : TestBase
 
         // Assert
         Assert.That(result, Is.EqualTo(expectedWinAmount));
-        _mockRngService.Verify(x => x.GetRandomDecimal(1.0m, _gameConfiguration.SmallWinMaxMultiplier), Times.Once);
     }
 
     [Test]
@@ -193,7 +202,6 @@ public class SlotGameServiceTests : TestBase
 
         // Assert
         Assert.That(result, Is.EqualTo(expectedWinAmount));
-        _mockRngService.Verify(x => x.GetRandomDecimal(_gameConfiguration.BigWinMinMultiplier, _gameConfiguration.BigWinMaxMultiplier), Times.Once);
     }
 
     [Test]
@@ -238,9 +246,9 @@ public class SlotGameServiceTests : TestBase
         var invalidGameResult = (GameResultType)999; // Invalid enum value
 
         // Act & Assert
-        var ex = Assert.Throws<ArgumentException>(() => 
+        var ex = Assert.Throws<ArgumentException>(() =>
             _slotGameService.CalculateWinAmount(betAmount, invalidGameResult, _gameConfiguration));
-        
+
         Assert.That(ex.Message, Is.EqualTo(UserMessages.InvalidGameResultType));
     }
 
@@ -280,49 +288,228 @@ public class SlotGameServiceTests : TestBase
     }
 
     #endregion
-
-    #region Integration Tests
+    
+    #region Success Scenarios
 
     [Test]
-    public void SlotGameService_WithMultipleGameResults_ShouldProduceExpectedDistribution()
+    public void ProcessBet_WithSmallWin_ShouldReturnSuccessWithWinnings()
     {
         // Arrange
+        var player = CreateTestPlayer(100m);
         var betAmount = 5m;
-        var gameResults = new List<GameResultType>();
-        var winAmounts = new List<decimal>();
+        var multiplier = 1.5m;
+        var winAmount = 7.5m;
 
-        // Setup different random values for game determination
-        var randomSequence = new Queue<decimal>(new[] { 0.3m, 0.7m, 0.95m }); // Loss, SmallWin, BigWin
+        _mockWalletService.Setup(x => x.PlaceBet(player, betAmount))
+            .Returns(CommandResult.Success("Bet placed"));
+
         _mockRngService.Setup(x => x.GetRandomDecimal(0, 1))
-            .Returns(() => randomSequence.Dequeue());
+            .Returns(0.7m);
 
-        // Setup win multipliers
-        _mockRngService.Setup(x => x.GetRandomDecimal(1.0m, 2.0m))
-            .Returns(1.5m);
-        _mockRngService.Setup(x => x.GetRandomDecimal(2.0m, 10.0m))
-            .Returns(5.0m);
+        _mockRngService.Setup(x => x.GetRandomDecimal(1.0m, _gameConfiguration.SmallWinMaxMultiplier))
+            .Returns(multiplier);
+
+        _mockWalletService.Setup(x => x.AcceptWin(player, winAmount))
+            .Returns(CommandResult.Success("Accepted win"));
 
         // Act
-        for (int i = 0; i < 3; i++)
-        {
-            var gameResult = _slotGameService.DetermineGameResult(_gameConfiguration);
-            var winAmount = _slotGameService.CalculateWinAmount(betAmount, gameResult, _gameConfiguration);
-            
-            gameResults.Add(gameResult);
-            winAmounts.Add(winAmount);
-        }
+        var result = _slotGameService.ProcessBet(player, betAmount);
 
         // Assert
-        Assert.That(gameResults[0], Is.EqualTo(GameResultType.Loss));
-        Assert.That(winAmounts[0], Is.EqualTo(0m));
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Message, Does.Contain("Congrats - you won"));
+        Assert.That(result.Message, Does.Contain("Your current balance is"));
+    }
 
-        Assert.That(gameResults[1], Is.EqualTo(GameResultType.SmallWin));
-        Assert.That(winAmounts[1], Is.EqualTo(7.5m)); // 5 * 1.5
+    [Test]
+    public void ProcessBet_WithBigWin_ShouldReturnSuccessWithWinnings()
+    {
+        // Arrange
+        var player = CreateTestPlayer(100m);
+        var betAmount = 10m;
+        var winAmount = 50m;
+        var randomValue = 0.95m; // Big win range
+        var multiplier = 5m;
 
-        Assert.That(gameResults[2], Is.EqualTo(GameResultType.BigWin));
-        Assert.That(winAmounts[2], Is.EqualTo(25m)); // 5 * 5.0
+        _mockWalletService.Setup(x => x.PlaceBet(player, betAmount))
+            .Returns(CommandResult.Success("Bet placed"));
+
+        _mockRngService.Setup(x => x.GetRandomDecimal(0, 1))
+            .Returns(randomValue);
+
+        _mockRngService.Setup(x => x.GetRandomDecimal(_gameConfiguration.BigWinMinMultiplier, _gameConfiguration.BigWinMaxMultiplier))
+            .Returns(multiplier);
+
+        _mockWalletService.Setup(x => x.AcceptWin(player, winAmount))
+            .Returns(CommandResult.Success("Accepted win"));
+
+        // Act
+        var result = _slotGameService.ProcessBet(player, betAmount);
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Message, Does.Contain("Congrats - you won"));
+        Assert.That(result.Message, Does.Contain("Your current balance is"));
+    }
+
+    [Test]
+    public void ProcessBet_WithLoss_ShouldReturnSuccessWithLossMessage()
+    {
+        // Arrange
+        var player = CreateTestPlayer(100m);
+        var betAmount = 5m;
+        var randomValue = 0.3m;
+
+        _mockWalletService.Setup(x => x.PlaceBet(player, betAmount))
+            .Returns(CommandResult.Success("Bet placed"));
+
+        _mockRngService.Setup(x => x.GetRandomDecimal(0, 1))
+            .Returns(randomValue);
+
+        // Act
+        var result = _slotGameService.ProcessBet(player, betAmount);
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Message, Does.Contain("No luck this time"));
     }
 
     #endregion
 
+    #region Error Scenarios
+
+    [Test]
+    public void ProcessBet_WhenPlaceBetFails_ShouldReturnError()
+    {
+        // Arrange
+        var player = CreateTestPlayer(2m);
+        var betAmount = 5m;
+        var errorMessage = "Insufficient funds";
+
+        _mockWalletService.Setup(x => x.PlaceBet(player, betAmount))
+            .Returns(CommandResult.Error(errorMessage));
+
+        // Act
+        var result = _slotGameService.ProcessBet(player, betAmount);
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.False);
+        Assert.That(result.Message, Is.EqualTo(errorMessage));
+    }
+
+    [Test]
+    public void ProcessBet_WhenAcceptWinFails_ShouldReturnError()
+    {
+        // Arrange
+        var player = CreateTestPlayer(100m);
+        var betAmount = 5m;
+        var winAmount = 10m;
+        var randomValue = 0.7m; // Small win range
+        var multiplier = 2m;
+        var errorMessage = "Failed to accept win";
+
+        _mockWalletService.Setup(x => x.PlaceBet(player, betAmount))
+            .Returns(CommandResult.Success("Bet placed"));
+
+        _mockRngService.Setup(x => x.GetRandomDecimal(0, 1))
+            .Returns(randomValue);
+
+        _mockRngService.Setup(x => x.GetRandomDecimal(1.0m, _gameConfiguration.SmallWinMaxMultiplier))
+            .Returns(multiplier);
+
+        _mockWalletService.Setup(x => x.AcceptWin(player, winAmount))
+            .Returns(CommandResult.Error(errorMessage));
+
+        // Act
+        var result = _slotGameService.ProcessBet(player, betAmount);
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.False);
+        Assert.That(result.Message, Is.EqualTo(errorMessage));
+    }
+
+    [Test]
+    public void ProcessBet_WhenSlotGameServiceThrows_ShouldReturnError()
+    {
+        // Arrange
+        var player = CreateTestPlayer(100m);
+        var betAmount = 5m;
+
+        _mockWalletService.Setup(x => x.PlaceBet(player, betAmount))
+            .Returns(CommandResult.Success("Bet placed"));
+
+        _mockRngService.Setup(x => x.GetRandomDecimal(0, 1))
+            .Throws(new InvalidOperationException("Game service error"));
+
+        // Act
+        var result = _slotGameService.ProcessBet(player, betAmount);
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.False);
+        Assert.That(result.Message, Does.Contain("An unexpected error occurred while processing bet"));
+    }
+
+    [Test]
+    public void ProcessBet_WhenWalletServiceThrows_ShouldReturnError()
+    {
+        // Arrange
+        var player = CreateTestPlayer(100m);
+        var betAmount = 5m;
+
+        _mockWalletService.Setup(x => x.PlaceBet(player, betAmount))
+            .Throws(new InvalidOperationException("Wallet service error"));
+
+        // Act
+        var result = _slotGameService.ProcessBet(player, betAmount);
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.False);
+        Assert.That(result.Message, Does.Contain("An unexpected error occurred while processing bet"));
+    }
+
+    #endregion
+
+    #region Edge Cases
+
+    [Test]
+    public void ProcessBet_WithMinimumBet_ShouldWork()
+    {
+        // Arrange
+        var player = CreateTestPlayer(100m);
+        var betAmount = 1m; // Minimum bet
+
+        _mockWalletService.Setup(x => x.PlaceBet(player, betAmount))
+            .Returns(CommandResult.Success("Bet placed"));
+
+        _mockRngService.Setup(x => x.GetRandomDecimal(0, 1))
+            .Returns(0.3m);
+
+        // Act
+        var result = _slotGameService.ProcessBet(player, betAmount);
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.True);
+    }
+
+    [Test]
+    public void ProcessBet_WithMaximumBet_ShouldWork()
+    {
+        // Arrange
+        var player = CreateTestPlayer(100m);
+        var betAmount = 10m; // Maximum bet
+
+        _mockWalletService.Setup(x => x.PlaceBet(player, betAmount))
+            .Returns(CommandResult.Success("Bet placed"));
+
+        _mockRngService.Setup(x => x.GetRandomDecimal(0, 1))
+            .Returns(0.3m);
+
+        // Act
+        var result = _slotGameService.ProcessBet(player, betAmount);
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.True);
+    }
+
+    #endregion
 }

@@ -17,7 +17,7 @@ namespace Casino.Core.Constants
         public const string DepositFailed = "Your deposit of ${0:0.##} has failed.";
         public const string DepositUnexpectedError = "An unexpected error occurred during deposit of ${0:0.##}";
         public const string WithdrawSuccessful = "Your withdrawal of ${0:0.##} was succesful. Your current balance is ${1:0.##}";
-        public const string WithdrawFailed = "Insufficient funds! Your withdrawal of ${0:0.##} has failed.";
+        public const string WithdrawFailed = "Your withdrawal of ${0:0.##} has failed.";
         public const string WithdrawUnexpectedError = "An unexpected error occurred during withdrawal of ${0:0.##}";
         public const string NoLuck = "No luck this time! Your current balance is: ${0:0.##}";
         public const string PlaceBetFailed = "Place Bet failed with amount ${0:0.##}.";

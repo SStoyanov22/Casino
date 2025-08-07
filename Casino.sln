@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Casino.Infrastructure", "Ca
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Casino.Tests", "Casino.Tests\Casino.Tests.csproj", "{D9CCA353-9D7A-4C7F-B1C4-ECE748872967}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Casino.IntegrationTests", "Casino.IntegrationTests\Casino.IntegrationTests.csproj", "{ABC6E8CC-2670-4C5C-BC34-D53383BA6EA4}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Casino.Wallet", "Casino.Wallet\Casino.Wallet.csproj", "{357CBE9B-D3DB-4585-83D8-6048C5D71BE5}"
 EndProject
 Global

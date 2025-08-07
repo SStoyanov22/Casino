@@ -71,7 +71,7 @@ public class SlotGameService : ISlotGameService
         }
     }
 
-    
+
     public CommandResult ProcessBet(Player player, decimal betAmount)
     {
         try

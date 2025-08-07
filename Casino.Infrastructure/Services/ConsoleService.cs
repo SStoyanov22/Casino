@@ -1,3 +1,4 @@
+using System.Globalization;
 using Casino.Core.Constants;
 using Casino.Core.Enums;
 using Casino.Core.Exceptions;
@@ -43,7 +44,7 @@ public class ConsoleService : IConsoleService
             throw new ParseInputException(LogMessages.InputEmpty);
         }
 
-        var parts = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var parts = input.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
         if (parts.Length == 0)
         {
             throw new ParseInputException(LogMessages.EmptyInputAfterSplitting);
@@ -60,12 +61,12 @@ public class ConsoleService : IConsoleService
         var commandType = ResolveCommand(command);
 
         if (parts.Length == 2 &&
-            !decimal.TryParse(parts[1], out amount))
+            !decimal.TryParse(parts[1], NumberStyles.Number, CultureInfo.InvariantCulture, out amount))
         {
             throw new ParseInputException(string.Format(LogMessages.CommandInvalidAmountFormat, command, parts[1]));
         }
          else if (parts.Length == 2 && 
-            decimal.TryParse(parts[1], out amount))
+            decimal.TryParse(parts[1], NumberStyles.Number, CultureInfo.InvariantCulture, out amount))
         {
             if(commandType != CommandType.Exit)
             {

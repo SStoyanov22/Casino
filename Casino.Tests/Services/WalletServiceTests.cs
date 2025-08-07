@@ -84,7 +84,7 @@ public class WalletServiceTests : TestBase
         // Assert
         Assert.That(result.IsSuccess, Is.False);
         Assert.That(player.Wallet.Balance, Is.EqualTo(new Money(20)));
-        Assert.That(result.Message, Is.EqualTo("Amount cannot be negative! Insufficient funds! Your withdrawal of $-50 has failed."));
+        Assert.That(result.Message, Is.EqualTo("Amount cannot be negative! Your withdrawal of $-50 has failed."));
     }
 
     [Test]
@@ -135,7 +135,7 @@ public class WalletServiceTests : TestBase
         // Assert
         Assert.That(result.IsSuccess, Is.False);
         Assert.That(player.Wallet.Balance, Is.EqualTo(new Money(2m))); // Balance unchanged
-        Assert.That(result.Message, Is.EqualTo("Insufficient funds! Place Bet failed with amount $5"));
+        Assert.That(result.Message, Is.EqualTo("Insufficient funds! Place Bet failed with amount $5."));
     }
 
     [Test]
@@ -151,7 +151,7 @@ public class WalletServiceTests : TestBase
         // Assert
         Assert.That(result.IsSuccess, Is.False);
         Assert.That(player.Wallet.Balance, Is.EqualTo(new Money(100))); // Balance unchanged
-        Assert.That(result.Message, Is.EqualTo("Bet amount must be between $1 and $10! Place Bet failed with amount $0.5"));
+        Assert.That(result.Message, Is.EqualTo("Bet amount must be between $1 and $10! Place Bet failed with amount $0.5."));
     }
 
     [Test]
@@ -235,7 +235,7 @@ public class WalletServiceTests : TestBase
         // Assert
         Assert.That(result.IsSuccess, Is.False);
         Assert.That(player.Wallet.Balance, Is.EqualTo(new Money(50))); // Balance unchanged
-        Assert.That(result.Message, Is.EqualTo("Amount cannot be negative! Accept Win failed with amount $-10"));
+        Assert.That(result.Message, Is.EqualTo("Amount cannot be negative! Accept Win failed with amount $-10."));
     }
 
     [Test]
