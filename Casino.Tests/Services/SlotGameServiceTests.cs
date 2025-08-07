@@ -47,6 +47,7 @@ public class SlotGameServiceTests : TestBase
 
         // Assert
         Assert.That(result, Is.EqualTo(GameResultType.Loss));
+        _mockRngService.Verify(x => x.GetRandomDecimal(0, 1), Times.Once);
     }
 
     [Test]
@@ -61,6 +62,7 @@ public class SlotGameServiceTests : TestBase
 
         // Assert
         Assert.That(result, Is.EqualTo(GameResultType.SmallWin));
+        _mockRngService.Verify(x => x.GetRandomDecimal(0, 1), Times.Once);
     }
 
     [Test]
@@ -75,6 +77,7 @@ public class SlotGameServiceTests : TestBase
 
         // Assert
         Assert.That(result, Is.EqualTo(GameResultType.BigWin));
+        _mockRngService.Verify(x => x.GetRandomDecimal(0, 1), Times.Once);
     }
 
     [Test]
@@ -88,7 +91,8 @@ public class SlotGameServiceTests : TestBase
         var result = _slotGameService.DetermineGameResult(_gameConfiguration);
 
         // Assert
-        Assert.That(result, Is.EqualTo(GameResultType.Loss));
+        Assert.That(result, Is.EqualTo(GameResultType.SmallWin));
+        _mockRngService.Verify(x => x.GetRandomDecimal(0, 1), Times.Once);
     }
 
     [Test]
@@ -102,7 +106,8 @@ public class SlotGameServiceTests : TestBase
         var result = _slotGameService.DetermineGameResult(_gameConfiguration);
 
         // Assert
-        Assert.That(result, Is.EqualTo(GameResultType.SmallWin));
+        Assert.That(result, Is.EqualTo(GameResultType.BigWin));
+        _mockRngService.Verify(x => x.GetRandomDecimal(0, 1), Times.Once);
     }
 
     [Test]
@@ -117,6 +122,22 @@ public class SlotGameServiceTests : TestBase
 
         // Assert
         Assert.That(result, Is.EqualTo(GameResultType.BigWin));
+        _mockRngService.Verify(x => x.GetRandomDecimal(0, 1), Times.Once);
+    }
+
+    [Test]
+    public void DetermineGameResult_WithZeroValue_ShouldReturnLoss()
+    {
+        // Arrange
+        _mockRngService.Setup(x => x.GetRandomDecimal(0, 1))
+            .Returns(0.0m);
+
+        // Act
+        var result = _slotGameService.DetermineGameResult(_gameConfiguration);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(GameResultType.Loss));
+        _mockRngService.Verify(x => x.GetRandomDecimal(0, 1), Times.Once);
     }
 
     #endregion
@@ -134,6 +155,7 @@ public class SlotGameServiceTests : TestBase
 
         // Assert
         Assert.That(result, Is.EqualTo(0m));
+        _mockRngService.Verify(x => x.GetRandomDecimal(It.IsAny<decimal>(), It.IsAny<decimal>()), Times.Never);
     }
 
     [Test]
@@ -152,6 +174,7 @@ public class SlotGameServiceTests : TestBase
 
         // Assert
         Assert.That(result, Is.EqualTo(expectedWinAmount));
+        _mockRngService.Verify(x => x.GetRandomDecimal(1.0m, _gameConfiguration.SmallWinMaxMultiplier), Times.Once);
     }
 
     [Test]
@@ -170,6 +193,7 @@ public class SlotGameServiceTests : TestBase
 
         // Assert
         Assert.That(result, Is.EqualTo(expectedWinAmount));
+        _mockRngService.Verify(x => x.GetRandomDecimal(_gameConfiguration.BigWinMinMultiplier, _gameConfiguration.BigWinMaxMultiplier), Times.Once);
     }
 
     [Test]
@@ -300,4 +324,5 @@ public class SlotGameServiceTests : TestBase
     }
 
     #endregion
+
 }
