@@ -34,7 +34,7 @@ public class WalletServiceTests : TestBase
         // Assert
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(player.Wallet.Balance, Is.EqualTo(new Money(150m)));
-        Assert.That(result.Message, Does.Contain("Your deposit of $50 was succesful. Your current balance is $150"));
+        Assert.That(result.Message, Is.EqualTo("Your deposit of $50 was succesful. Your current balance is $150"));
     }
 
     [Test]
@@ -49,7 +49,7 @@ public class WalletServiceTests : TestBase
 
         // Assert
         Assert.That(result.IsSuccess, Is.False);
-        Assert.That(result.Message, Does.Contain("Amount cannot be negative! Your deposit of $-10 has failed."));
+        Assert.That(result.Message, Is.EqualTo("Amount cannot be negative! Your deposit of $-10 has failed."));
     }
     #endregion
 
@@ -68,7 +68,7 @@ public class WalletServiceTests : TestBase
         // Assert
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(player.Wallet.Balance, Is.EqualTo(new Money(70)));
-        Assert.That(result.Message, Does.Contain("Your withdrawal of $30 was succesful. Your current balance is $70"));
+        Assert.That(result.Message, Is.EqualTo("Your withdrawal of $30 was succesful. Your current balance is $70"));
     }
 
     [Test]
@@ -84,7 +84,7 @@ public class WalletServiceTests : TestBase
         // Assert
         Assert.That(result.IsSuccess, Is.False);
         Assert.That(player.Wallet.Balance, Is.EqualTo(new Money(20)));
-        Assert.That(result.Message, Does.Contain("Amount cannot be negative! Insufficient funds! Your withdrawal of $-50 has failed."));
+        Assert.That(result.Message, Is.EqualTo("Amount cannot be negative! Insufficient funds! Your withdrawal of $-50 has failed."));
     }
 
     [Test]
@@ -100,7 +100,7 @@ public class WalletServiceTests : TestBase
         // Assert
         Assert.That(result.IsSuccess, Is.False);
         Assert.That(player.Wallet.Balance, Is.EqualTo(new Money(20)));
-        Assert.That(result.Message, Does.Contain("Insufficient funds! Your withdrawal of $50 has failed."));
+        Assert.That(result.Message, Is.EqualTo("Insufficient funds! Your withdrawal of $50 has failed."));
     }
     #endregion Withdraw Tests
 
@@ -119,7 +119,7 @@ public class WalletServiceTests : TestBase
         // Assert
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(player.Wallet.Balance, Is.EqualTo(new Money(95)));
-        Assert.That(result.Message, Does.Contain("Place Bet successful. Your new balance is: $95"));
+        Assert.That(result.Message, Is.EqualTo("Place Bet successful. Your new balance is: $95"));
     }
 
     [Test]
@@ -135,7 +135,7 @@ public class WalletServiceTests : TestBase
         // Assert
         Assert.That(result.IsSuccess, Is.False);
         Assert.That(player.Wallet.Balance, Is.EqualTo(new Money(2m))); // Balance unchanged
-        Assert.That(result.Message, Does.Contain("Insufficient funds! Place Bet failed with amount $5"));
+        Assert.That(result.Message, Is.EqualTo("Insufficient funds! Place Bet failed with amount $5"));
     }
 
     [Test]
@@ -151,7 +151,7 @@ public class WalletServiceTests : TestBase
         // Assert
         Assert.That(result.IsSuccess, Is.False);
         Assert.That(player.Wallet.Balance, Is.EqualTo(new Money(100))); // Balance unchanged
-        Assert.That(result.Message, Does.Contain("Bet amount must be between $1 and $10! Place Bet failed with amount $0.5"));
+        Assert.That(result.Message, Is.EqualTo("Bet amount must be between $1 and $10! Place Bet failed with amount $0.5"));
     }
 
     [Test]
@@ -167,7 +167,7 @@ public class WalletServiceTests : TestBase
         // Assert
         Assert.That(result.IsSuccess, Is.False);
         Assert.That(player.Wallet.Balance, Is.EqualTo(new Money(100))); // Balance unchanged
-        Assert.That(result.Message, Does.Contain("Bet amount must be between $1 and $10! Place Bet failed with amount $11."));
+        Assert.That(result.Message, Is.EqualTo("Bet amount must be between $1 and $10! Place Bet failed with amount $11."));
     }
 
     [Test]
@@ -183,7 +183,7 @@ public class WalletServiceTests : TestBase
         // Assert
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(player.Wallet.Balance, Is.EqualTo(new Money(9)));
-        Assert.That(result.Message, Does.Contain("Place Bet successful. Your new balance is: $9"));
+        Assert.That(result.Message, Is.EqualTo("Place Bet successful. Your new balance is: $9"));
     }
 
     [Test]
@@ -199,7 +199,7 @@ public class WalletServiceTests : TestBase
         // Assert
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(player.Wallet.Balance, Is.EqualTo(new Money(10)));
-        Assert.That(result.Message, Does.Contain("Place Bet successful. Your new balance is: $10"));
+        Assert.That(result.Message, Is.EqualTo("Place Bet successful. Your new balance is: $10"));
     }
 
     #endregion
@@ -219,7 +219,7 @@ public class WalletServiceTests : TestBase
         // Assert
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(player.Wallet.Balance, Is.EqualTo(new Money(75)));
-        Assert.That(result.Message, Does.Contain("Congrats - you won $25! Your current balance is: $75"));
+        Assert.That(result.Message, Is.EqualTo("Congrats - you won $25! Your current balance is: $75"));
     }
 
     [Test]
@@ -235,7 +235,7 @@ public class WalletServiceTests : TestBase
         // Assert
         Assert.That(result.IsSuccess, Is.False);
         Assert.That(player.Wallet.Balance, Is.EqualTo(new Money(50))); // Balance unchanged
-        Assert.That(result.Message, Does.Contain("Amount cannot be negative! Accept Win failed with amount $-10"));
+        Assert.That(result.Message, Is.EqualTo("Amount cannot be negative! Accept Win failed with amount $-10"));
     }
 
     [Test]
@@ -251,7 +251,7 @@ public class WalletServiceTests : TestBase
         // Assert
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(player.Wallet.Balance, Is.EqualTo(new Money(50))); // Balance unchanged but operation successful
-        Assert.That(result.Message, Does.Contain("Congrats - you won $0! Your current balance is: $50"));
+        Assert.That(result.Message, Is.EqualTo("Congrats - you won $0! Your current balance is: $50"));
     }
 
     [Test]
@@ -267,7 +267,7 @@ public class WalletServiceTests : TestBase
         // Assert
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(player.Wallet.Balance, Is.EqualTo(new Money(1100)));
-        Assert.That(result.Message, Does.Contain("Congrats - you won $1000! Your current balance is: $1100"));
+        Assert.That(result.Message, Is.EqualTo("Congrats - you won $1000! Your current balance is: $1100"));
     }
 
     [Test]
@@ -283,7 +283,7 @@ public class WalletServiceTests : TestBase
         // Assert
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(player.Wallet.Balance, Is.EqualTo(new Money(62.75m)));
-        Assert.That(result.Message, Does.Contain("Congrats - you won $12.75! Your current balance is: $62.75"));
+        Assert.That(result.Message, Is.EqualTo("Congrats - you won $12.75! Your current balance is: $62.75"));
     }
 
     #endregion
